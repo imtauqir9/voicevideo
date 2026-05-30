@@ -21,7 +21,7 @@ netlify/functions/
 ## Step 1 — Get your API keys
 
 - **Claude** → https://console.anthropic.com → API Keys → starts with `sk-ant-api03-...`
-- **ElevenLabs** → https://elevenlabs.io → Profile → API Key
+- **ElevenLabs** → https://elevenlabs.io → Profile → 763413813919-uuhddi9jdih1fcqnej4dc6tadnb1kb0o.apps.googleusercontent.com
 
 Don't paste them into any file. You'll add them to Netlify directly in Step 3.
 
@@ -44,19 +44,19 @@ The first deploy will succeed but the demo proxy won't work yet because the keys
 1. In your new site dashboard, go to **Site configuration → Environment variables**
 2. Click **Add a variable** and add these three:
 
-   | Key | Value |
-   |---|---|
-   | `CLAUDE_API_KEY` | your `sk-ant-api03-...` key |
-   | `ELEVENLABS_API_KEY` | your ElevenLabs key |
-   | `DEMO_LIMIT` | `3`  *(generations allowed per IP per 24h — tweak as you like)* |
-   | `BRAVE_SEARCH_KEY` | your Brave Search API key  *(optional — only needed if you want the "Ground with web search" toggle to work)* |
-   | `SEARCH_DEMO_LIMIT` | `20`  *(optional — web searches per IP per 24h, defaults to 20)* |
+   | Key                  | Value                                                                                                        |
+   | -------------------- | ------------------------------------------------------------------------------------------------------------ |
+   | `CLAUDE_API_KEY`     | your `sk-ant-api03-...` key                                                                                  |
+   | `ELEVENLABS_API_KEY` | your ElevenLabs key                                                                                          |
+   | `DEMO_LIMIT`         | `3` _(generations allowed per IP per 24h — tweak as you like)_                                               |
+   | `BRAVE_SEARCH_KEY`   | your Brave Search API key _(optional — only needed if you want the "Ground with web search" toggle to work)_ |
+   | `SEARCH_DEMO_LIMIT`  | `20` _(optional — web searches per IP per 24h, defaults to 20)_                                              |
 
 3. (Optional) Add `ELEVENLABS_VOICE_ID` if you want to lock the demo to a specific voice. Defaults to `kmiDQH3kczbRzoifN5Qv`.
 
 4. (Optional, for web grounding) Get a **free Brave Search API key** at https://api.search.brave.com/ — 2,000 queries/month free, no credit card. Paste it as `BRAVE_SEARCH_KEY`. Without this key, the "Ground with web search" toggle in the form will simply do nothing instead of breaking.
 
-4. Go to **Deploys → Trigger deploy → Deploy site** so the env vars take effect.
+5. Go to **Deploys → Trigger deploy → Deploy site** so the env vars take effect.
 
 ---
 
