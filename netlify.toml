@@ -1,0 +1,25 @@
+# Netlify configuration for VoiceVideo
+# Serverless functions in netlify/functions/ are auto-detected.
+
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+
+# Optional: extend the default function timeout for slow generations
+[functions."claude"]
+  timeout = 26
+
+[functions."eleven"]
+  timeout = 26
+
+[functions."search"]
+  timeout = 10
+
+# Allow the app to call the function endpoints with the right MIME types
+[[headers]]
+  for = "/.netlify/functions/*"
+  [headers.values]
+    Cache-Control = "no-store"
