@@ -27,6 +27,20 @@ You'll get a triaged plan back in seconds.
 
 ## Open feedback (status: new)
 
+
+
+### 2026-05-31T04:04:35.784Z — idea — https://voicevideo.io/app
+status: new
+rating: 3
+email: imtauqir9@gmail.com
+ua: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36
+
+## Comment
+Amzing idea
+
+## Response
+(empty until triaged)
+---
 *No feedback yet. Entries will land here automatically once visitors start submitting.*
 
 ---
