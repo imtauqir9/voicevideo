@@ -1673,6 +1673,93 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
     Free demo &middot; loading remaining quota...
   </div>
 
+  <!-- ── WHAT'S NEW + REVIEW BANNER ─────────────────────── -->
+  <style>
+    .whats-new{display:none;position:relative;padding:20px 22px;margin-bottom:24px;background:linear-gradient(135deg,rgba(232,160,32,.05),rgba(124,92,252,.04));border:1px solid rgba(232,160,32,.22);border-radius:14px;animation:wn-in .4s ease-out}
+    .whats-new.show{display:block}
+    @keyframes wn-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+    .wn-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px}
+    .wn-eyebrow{font-family:'DM Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.22em;color:#E8A020;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+    .wn-eyebrow::before{content:'';width:6px;height:6px;border-radius:999px;background:#E8A020;box-shadow:0 0 0 4px rgba(232,160,32,.2);animation:wn-pulse 2s ease-in-out infinite}
+    @keyframes wn-pulse{0%,100%{opacity:1}50%{opacity:.55}}
+    .wn-title{font-family:'Playfair Display',Georgia,serif;font-weight:700;font-size:22px;color:#F7F2EA;letter-spacing:-.01em;margin:0}
+    .wn-title em{font-style:italic;color:#E8A020}
+    .wn-close{background:none;border:none;color:rgba(247,242,234,.4);font-size:18px;cursor:pointer;padding:4px 8px;line-height:1;border-radius:6px}
+    .wn-close:hover{color:#F7F2EA;background:rgba(255,255,255,.04)}
+    .wn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:18px}
+    .wn-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:rgba(26,20,16,.5);border:1px solid rgba(255,255,255,.06);border-radius:9px}
+    .wn-item-tag{font-family:'DM Mono',ui-monospace,monospace;font-size:9px;color:#E8A020;background:rgba(232,160,32,.12);padding:3px 7px;border-radius:999px;letter-spacing:.12em;flex-shrink:0;margin-top:1px}
+    .wn-item-text{font-family:'DM Sans',system-ui,sans-serif;font-size:12.5px;color:rgba(247,242,234,.78);line-height:1.45}
+    .wn-item-text strong{color:#F7F2EA;font-weight:600}
+    .wn-cta-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .wn-cta-primary{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:#E8A020;color:#1A0F00;font-family:'DM Sans',system-ui,sans-serif;font-weight:700;font-size:13px;border-radius:9px;border:none;cursor:pointer;letter-spacing:.02em;box-shadow:0 6px 18px -8px rgba(232,160,32,.6),0 1px 0 rgba(255,255,255,.14) inset;transition:transform .12s,background .15s}
+    .wn-cta-primary:hover{background:#F5C842;transform:translateY(-1px)}
+    .wn-cta-ghost{display:inline-flex;align-items:center;gap:6px;padding:10px 14px;background:rgba(255,255,255,.02);color:rgba(247,242,234,.7);font-family:'DM Mono',ui-monospace,monospace;font-size:11px;border:1px solid rgba(255,255,255,.1);border-radius:9px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;transition:border-color .15s,color .15s}
+    .wn-cta-ghost:hover{border-color:rgba(232,160,32,.4);color:#E8A020}
+    .wn-footnote{font-family:'DM Mono',ui-monospace,monospace;font-size:10px;color:rgba(247,242,234,.4);letter-spacing:.08em;margin-left:auto}
+  </style>
+  <div class="whats-new" id="whatsNew">
+    <div class="wn-head">
+      <div>
+        <div class="wn-eyebrow">New in this version &middot; v2</div>
+        <h3 class="wn-title">What's <em>new</em> for review</h3>
+      </div>
+      <button class="wn-close" onclick="dismissWhatsNew()" title="Hide" aria-label="Hide">&times;</button>
+    </div>
+    <div class="wn-grid">
+      <div class="wn-item"><span class="wn-item-tag">UI</span><div class="wn-item-text"><strong>Studio redesign</strong> &mdash; sticky nav, slim header, pipeline indicator at the top</div></div>
+      <div class="wn-item"><span class="wn-item-tag">VERIFY</span><div class="wn-item-text"><strong>Donut gauges + Trust Score</strong> replace plain text scores in the 5-layer audit</div></div>
+      <div class="wn-item"><span class="wn-item-tag">VERIFY</span><div class="wn-item-text"><strong>Multi-provider cross-check</strong> &mdash; GPT-4 / Gemini / Mistral score every layer in parallel</div></div>
+      <div class="wn-item"><span class="wn-item-tag">GROUND</span><div class="wn-item-text"><strong>Web-search grounding</strong> &mdash; optional toggle pulls live sources to reduce hallucinations</div></div>
+      <div class="wn-item"><span class="wn-item-tag">EXPORT</span><div class="wn-item-text"><strong>Branded .docx and .pptx</strong> &mdash; warm dark amber, Playfair headings, metadata strip</div></div>
+      <div class="wn-item"><span class="wn-item-tag">VIDEO</span><div class="wn-item-text"><strong>HD video render</strong> &mdash; 1080p default, designer slides, Ken Burns motion, intro + outro</div></div>
+      <div class="wn-item"><span class="wn-item-tag">SECURITY</span><div class="wn-item-text"><strong>Production hardening</strong> &mdash; rate limits, origin checks, honeypot, CSP headers</div></div>
+      <div class="wn-item"><span class="wn-item-tag">FEEDBACK</span><div class="wn-item-text"><strong>In-app feedback widget</strong> &mdash; pencil button, every submission lands in the public backlog</div></div>
+    </div>
+    <div class="wn-cta-row">
+      <button class="wn-cta-primary" onclick="dismissWhatsNew();fbOpen();">Leave a review &rarr;</button>
+      <button class="wn-cta-ghost" onclick="dismissWhatsNew()">Got it</button>
+      <span class="wn-footnote">2 minutes &middot; helps me prioritise v3</span>
+    </div>
+  </div>
+  <script>
+    // The "What's new" banner is for REVIEWERS only.
+    // It appears when the URL has ?review=1 (or ?review).
+    // Once a reviewer arrives via that link, the flag is stored in localStorage
+    // so they can come back to a plain URL and still see it (until they dismiss).
+    (function(){
+      try {
+        var KEY_DISMISS = 'vv_whatsnew_v2';
+        var KEY_FLAG    = 'vv_reviewer';
+        var params = new URLSearchParams(window.location.search);
+        var isReviewer = params.has('review');
+        if (isReviewer) {
+          localStorage.setItem(KEY_FLAG, 'yes');
+        }
+        var flagged = localStorage.getItem(KEY_FLAG) === 'yes';
+        var dismissed = localStorage.getItem(KEY_DISMISS) === 'dismissed';
+        if (flagged && !dismissed) {
+          var el = document.getElementById('whatsNew');
+          if (el) el.classList.add('show');
+        }
+      } catch(e){}
+    })();
+    function dismissWhatsNew(){
+      try { localStorage.setItem('vv_whatsnew_v2', 'dismissed'); } catch(e){}
+      var el = document.getElementById('whatsNew');
+      if (el) el.classList.remove('show');
+    }
+    // For your own testing: open DevTools console and run showWhatsNew()
+    function showWhatsNew(){
+      try {
+        localStorage.removeItem('vv_whatsnew_v2');
+        localStorage.setItem('vv_reviewer', 'yes');
+      } catch(e){}
+      var el = document.getElementById('whatsNew');
+      if (el) el.classList.add('show');
+    }
+  </script>
+
   <!-- PIPELINE PROGRESS STRIP -->
   <style>
     .pipeline-strip{display:flex;align-items:center;gap:6px;padding:14px 18px;margin-bottom:24px;background:rgba(26,20,16,.55);border:1px solid rgba(255,255,255,.07);border-radius:14px;overflow-x:auto;scrollbar-width:none}
