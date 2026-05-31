@@ -23,6 +23,23 @@ function getUsage(ip) {
   return rec;
 }
 
+const ALLOWED_ORIGINS = [
+  'https://voicevideo.io',
+  'https://www.voicevideo.io',
+  'http://localhost:8765',
+  'http://localhost:8888',
+  'http://127.0.0.1:8765',
+];
+function isAllowedOrigin(event) {
+  const origin = event.headers.origin || event.headers.Origin || '';
+  const referer = event.headers.referer || event.headers.Referer || '';
+  if (origin && ALLOWED_ORIGINS.includes(origin)) return true;
+  if (referer) {
+    try { return ALLOWED_ORIGINS.includes(new URL(referer).origin); } catch(e){}
+  }
+  return false;
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
     return {
@@ -38,6 +55,14 @@ exports.handler = async (event) => {
 
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: JSON.stringify({ error: { message: 'Method Not Allowed' } }) };
+  }
+
+  if (!isAllowedOrigin(event)) {
+    return {
+      statusCode: 403,
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify({ error: { message: 'Origin not allowed.' } }),
+    };
   }
 
   const apiKey = process.env.ELEVENLABS_API_KEY;

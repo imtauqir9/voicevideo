@@ -26,3 +26,33 @@
   for = "/.netlify/functions/*"
   [headers.values]
     Cache-Control = "no-store"
+
+# ── Site-wide security headers ───────────────────────────────────────
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Prevent the site from being framed by malicious pages (clickjacking)
+    X-Frame-Options = "SAMEORIGIN"
+    # Lock content sniffing
+    X-Content-Type-Options = "nosniff"
+    # Don't leak full URL on outbound clicks
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    # Disable browser features we don't use
+    Permissions-Policy = "geolocation=(), camera=(), microphone=(self), payment=(), usb=()"
+    # Cross-origin isolation
+    Cross-Origin-Opener-Policy = "same-origin"
+    # Force HTTPS for one year
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+    # Content Security Policy - tuned for the inline-script style of this app.
+    # 'unsafe-inline' is required because the app uses inline <script> blocks;
+    # rest of policy aggressively narrows what can load.
+    Content-Security-Policy = """default-src 'self'; \
+      script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; \
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; \
+      font-src 'self' https://fonts.gstatic.com data:; \
+      img-src 'self' data: https: blob:; \
+      media-src 'self' blob: data:; \
+      connect-src 'self' https://api.anthropic.com https://api.elevenlabs.io https://api.openai.com https://generativelanguage.googleapis.com https://api.mistral.ai https://api.allorigins.win https://api.github.com https://www.googleapis.com; \
+      frame-ancestors 'self'; \
+      base-uri 'self'; \
+      form-action 'self';"""

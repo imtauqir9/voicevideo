@@ -2860,6 +2860,12 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
         <input class="fb-input" type="email" id="fbEmail" placeholder="you@example.com" maxlength="200">
       </div>
 
+      <!-- Honeypot: hidden from humans, filled by spam bots. Server rejects if non-empty. -->
+      <div style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden" aria-hidden="true">
+        <label for="fbWebsite">Website (leave blank)</label>
+        <input type="text" id="fbWebsite" name="website" tabindex="-1" autocomplete="off" value="">
+      </div>
+
       <div class="fb-error" id="fbError"></div>
 
       <div class="fb-submit-row">
@@ -2882,6 +2888,7 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
     var o = document.getElementById('fbOverlay');
     if (o) o.classList.add('show');
     document.body.style.overflow = 'hidden';
+    window.__fbOpenedAt = Date.now(); // track time-on-form for bot detection
     fbSetRating(3); fbSetType('idea');
     document.getElementById('fbFormWrap').style.display = '';
     document.getElementById('fbThanksWrap').style.display = 'none';
@@ -2930,7 +2937,9 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
         type: fbState.type,
         comment: comment,
         email: emailEl ? emailEl.value.trim() : '',
-        source: window.location.href
+        source: window.location.href,
+        website: (document.getElementById('fbWebsite')||{}).value || '',
+        ts_open: window.__fbOpenedAt || 0
       })
     }).then(function(r){
       return r.json().catch(function(){return{};}).then(function(j){
