@@ -1,0 +1,9 @@
+{
+  "name": "voicevideo",
+  "version": "1.0.0",
+  "description": "VoiceVideo — write, voice, publish.",
+  "private": true,
+  "dependencies": {
+    "@netlify/blobs": "^7.4.0"
+  }
+}
