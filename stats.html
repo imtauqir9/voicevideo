@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VoiceVideo &mdash; Stats</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0A0806; --bg-2: #1A1410; --surface: #221B14;
+  --border: rgba(255,255,255,0.08); --text: #F7F2EA;
+  --text-2: rgba(247,242,234,0.65); --text-3: rgba(247,242,234,0.42);
+  --amber: #E8A020; --amber-2: #F5C842; --green: #00D4A0;
+  --blue: #5B8FE8; --purple: #7C5CFC; --pink: #FF6B9D; --red: #EF4444;
+  --f-head: 'Playfair Display', Georgia, serif;
+  --f-body: 'DM Sans', system-ui, sans-serif;
+  --f-mono: 'DM Mono', ui-monospace, monospace;
+}
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--f-body); min-height: 100vh; padding: 2rem; }
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 80% 15%, rgba(232,160,32,0.12), transparent 60%);
+  pointer-events: none; z-index: 0;
+}
+.wrap { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; }
+.brand-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 1rem; }
+.brand { font-family: var(--f-head); font-weight: 900; font-size: 26px; letter-spacing: -0.02em; }
+.brand em { color: var(--amber); font-style: italic; font-weight: 700; }
+.eyebrow { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.22em; color: var(--amber); text-transform: uppercase; display: inline-flex; align-items: center; gap: 8px; }
+.eyebrow::before { content: ''; width: 8px; height: 8px; border-radius: 999px; background: var(--amber); box-shadow: 0 0 0 4px rgba(232,160,32,0.18); }
+h1 { font-family: var(--f-head); font-weight: 900; font-size: 42px; letter-spacing: -0.025em; margin: 1rem 0 0.5rem; }
+h1 em { color: var(--amber); font-style: italic; }
+.sub { color: var(--text-2); font-size: 14px; margin-bottom: 2rem; }
+.tools { display: flex; gap: 10px; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; }
+.tools select, .tools input, .tools button {
+  background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: var(--text);
+  padding: 9px 14px; border-radius: 8px; font-family: var(--f-body); font-size: 13px;
+}
+.tools label { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.14em; color: var(--text-3); text-transform: uppercase; }
+.tools .reload { background: var(--amber); color: #1A0F00; border: none; cursor: pointer; font-weight: 700; }
+.tools .reload:hover { background: var(--amber-2); }
+
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 2.5rem; }
+.tile { background: rgba(26,20,16,0.7); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; backdrop-filter: blur(8px); }
+.tile .lbl { font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.18em; color: var(--text-3); text-transform: uppercase; margin-bottom: 0.6rem; }
+.tile .num { font-family: var(--f-head); font-weight: 900; font-size: 36px; color: var(--amber); line-height: 1; }
+.tile .delta { font-family: var(--f-mono); font-size: 11px; color: var(--text-2); margin-top: 0.4rem; letter-spacing: 0.06em; }
+
+.section-label { font-family: var(--f-mono); font-size: 10px; color: var(--text-3); letter-spacing: 0.22em; text-transform: uppercase; margin: 2rem 0 1rem; display: flex; align-items: center; gap: 16px; }
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.chart-card { background: rgba(26,20,16,0.7); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem; }
+.chart-card h3 { font-family: var(--f-head); font-weight: 700; font-size: 18px; color: var(--text); margin-bottom: 1rem; }
+.chart-card .chart-wrap { position: relative; height: 280px; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+@media (max-width: 720px) { .grid-2 { grid-template-columns: 1fr; } }
+
+.funnel { display: flex; flex-direction: column; gap: 8px; }
+.funnel-row { display: grid; grid-template-columns: 200px 1fr 80px; gap: 12px; align-items: center; padding: 8px 0; }
+.funnel-lbl { font-family: var(--f-mono); font-size: 11px; color: var(--text-2); letter-spacing: 0.1em; text-transform: uppercase; }
+.funnel-bar-bg { height: 28px; background: rgba(255,255,255,0.04); border-radius: 8px; overflow: hidden; }
+.funnel-bar { height: 100%; background: var(--amber); border-radius: 8px; transition: width 0.6s ease; display: flex; align-items: center; padding-left: 12px; color: #1A0F00; font-weight: 700; font-size: 12px; font-family: var(--f-mono); }
+.funnel-count { font-family: var(--f-head); font-weight: 900; font-size: 18px; color: var(--text); text-align: right; }
+
+.gate { max-width: 460px; margin: 6rem auto; background: rgba(26,20,16,0.85); border: 1px solid rgba(232,160,32,0.25); border-radius: 14px; padding: 2.5rem; text-align: center; backdrop-filter: blur(8px); }
+.gate h2 { font-family: var(--f-head); font-weight: 700; font-size: 28px; margin-bottom: 0.5rem; }
+.gate p { color: var(--text-2); font-size: 14px; margin-bottom: 1.5rem; line-height: 1.6; }
+.gate input { width: 100%; padding: 12px 14px; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 9px; color: var(--text); font-family: var(--f-mono); font-size: 14px; margin-bottom: 1rem; }
+.gate button { background: var(--amber); color: #1A0F00; border: none; padding: 12px 28px; border-radius: 9px; font-family: var(--f-body); font-weight: 700; font-size: 14px; cursor: pointer; width: 100%; }
+
+.error-bar { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); color: var(--red); padding: 14px 18px; border-radius: 10px; font-family: var(--f-mono); font-size: 12px; margin: 1rem 0; display: none; }
+.error-bar.show { display: block; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="gate" id="gate">
+    <div class="eyebrow" style="margin-bottom: 1rem;">Admin only</div>
+    <h2><em>Stats</em> dashboard</h2>
+    <p>Paste your <code>STATS_ADMIN_KEY</code> to view the last 30 days of analytics.</p>
+    <input type="password" id="adminKey" placeholder="Paste admin key" autofocus>
+    <button onclick="unlock()">Unlock &rarr;</button>
+  </div>
+
+  <div id="main" style="display:none">
+    <div class="brand-row">
+      <div class="brand">Voice<em>Video</em></div>
+      <div class="eyebrow" id="genTime">loading...</div>
+    </div>
+    <h1>Stats <em>dashboard</em></h1>
+    <p class="sub">Aggregated event counts. No personal data &mdash; just totals.</p>
+
+    <div class="tools">
+      <label>Window</label>
+      <select id="daysSel" onchange="loadStats()">
+        <option value="7">Last 7 days</option>
+        <option value="30" selected>Last 30 days</option>
+        <option value="60">Last 60 days</option>
+        <option value="90">Last 90 days</option>
+      </select>
+      <button class="reload" onclick="loadStats()">Reload &rarr;</button>
+    </div>
+
+    <div class="error-bar" id="errorBar"></div>
+
+    <div class="stat-grid" id="tiles"></div>
+
+    <div class="section-label">Daily traffic</div>
+    <div class="chart-card">
+      <h3>Page views &amp; generations</h3>
+      <div class="chart-wrap"><canvas id="dailyChart"></canvas></div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="section-label">Content mix</div>
+        <div class="chart-card">
+          <h3>Generations by type</h3>
+          <div class="chart-wrap" style="height:240px"><canvas id="typeChart"></canvas></div>
+        </div>
+      </div>
+      <div>
+        <div class="section-label">Last 7 days</div>
+        <div class="chart-card">
+          <h3>Conversion funnel</h3>
+          <div class="funnel" id="funnel"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">Full activity</div>
+    <div class="chart-card">
+      <h3>Every event type, daily</h3>
+      <div class="chart-wrap" style="height:320px"><canvas id="allEventsChart"></canvas></div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+<script>
+var ADMIN_KEY = null;
+var CHARTS = {};
+
+function unlock() {
+  ADMIN_KEY = document.getElementById('adminKey').value.trim();
+  if (!ADMIN_KEY) return;
+  try { sessionStorage.setItem('vv_admin_key', ADMIN_KEY); } catch (e) {}
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('main').style.display = '';
+  loadStats();
+}
+
+// Auto-unlock from session storage or ?key= param
+(function() {
+  var u = new URL(location.href);
+  var keyFromUrl = u.searchParams.get('key');
+  var saved = null;
+  try { saved = sessionStorage.getItem('vv_admin_key'); } catch (e) {}
+  if (keyFromUrl) {
+    ADMIN_KEY = keyFromUrl;
+    try { sessionStorage.setItem('vv_admin_key', keyFromUrl); } catch (e) {}
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('main').style.display = '';
+    loadStats();
+  } else if (saved) {
+    ADMIN_KEY = saved;
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('main').style.display = '';
+    loadStats();
+  }
+})();
+
+function showError(msg) {
+  var el = document.getElementById('errorBar');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+async function loadStats() {
+  if (!ADMIN_KEY) return;
+  document.getElementById('errorBar').classList.remove('show');
+  var days = document.getElementById('daysSel').value;
+  try {
+    var resp = await fetch('/.netlify/functions/stats?key=' + encodeURIComponent(ADMIN_KEY) + '&days=' + days);
+    if (!resp.ok) {
+      var t = await resp.text();
+      showError('Server error ' + resp.status + ': ' + t.substring(0, 200));
+      return;
+    }
+    var data = await resp.json();
+    if (!data.ok) {
+      showError('Bad response: ' + JSON.stringify(data));
+      return;
+    }
+    render(data);
+  } catch (e) {
+    showError('Network error: ' + e.message);
+  }
+}
+
+function sum(arr) { return (arr || []).reduce(function(s, v){ return s + (v || 0); }, 0); }
+
+function render(d) {
+  var totals = d.totals || {};
+  var series = d.dailySeries || {};
+  document.getElementById('genTime').textContent = 'Generated ' + new Date(d.generatedAt).toLocaleString();
+
+  // ── Top tiles
+  var tiles = [
+    { lbl: 'Page views', val: sum(series.page_view) },
+    { lbl: 'Generations started', val: sum(series.generation_started) },
+    { lbl: 'Generations completed', val: sum(series.generation_completed) },
+    { lbl: 'Voice clips', val: sum(series.voice_generated) },
+    { lbl: 'Videos created', val: sum(series.video_created) },
+    { lbl: 'Feedback submitted', val: sum(series.feedback_submitted) },
+    { lbl: 'Demo limit hits', val: sum(series.demo_limit_hit) },
+    { lbl: 'Own keys used', val: sum(series.own_key_used) },
+  ];
+  document.getElementById('tiles').innerHTML = tiles.map(function(t){
+    return '<div class="tile"><div class="lbl">' + t.lbl + '</div><div class="num">' + (t.val||0).toLocaleString() + '</div></div>';
+  }).join('');
+
+  // ── Daily chart
+  upsertChart('dailyChart', {
+    type: 'line',
+    data: {
+      labels: d.dates,
+      datasets: [
+        { label: 'Page views',         data: series.page_view,           borderColor: '#5B8FE8', backgroundColor: 'rgba(91,143,232,0.12)', tension: 0.3, fill: true },
+        { label: 'Generations',        data: series.generation_completed, borderColor: '#E8A020', backgroundColor: 'rgba(232,160,32,0.12)', tension: 0.3, fill: true },
+        { label: 'Videos',             data: series.video_created,       borderColor: '#00D4A0', backgroundColor: 'rgba(0,212,160,0.10)',  tension: 0.3, fill: true }
+      ]
+    },
+    options: chartOpts()
+  });
+
+  // ── Type pie
+  var typeKeys = Object.keys(totals).filter(function(k){ return /^generation_started:type=/.test(k); });
+  var typeLabels = typeKeys.map(function(k){ return k.split('=')[1]; });
+  var typeVals = typeKeys.map(function(k){ return totals[k]; });
+  if (typeKeys.length) {
+    upsertChart('typeChart', {
+      type: 'doughnut',
+      data: {
+        labels: typeLabels,
+        datasets: [{ data: typeVals, backgroundColor: ['#E8A020','#5B8FE8','#00D4A0','#7C5CFC','#FF6B9D','#F5C842'], borderColor: '#0A0806', borderWidth: 2 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'right', labels: { color: '#A89B8A' } } }
+      }
+    });
+  } else {
+    // empty state
+    var emptyCanvas = document.getElementById('typeChart');
+    var ctx = emptyCanvas.getContext('2d');
+    ctx.clearRect(0,0,emptyCanvas.width,emptyCanvas.height);
+    ctx.fillStyle = '#6B5F52'; ctx.font = '14px DM Sans'; ctx.textAlign = 'center';
+    ctx.fillText('No data yet', emptyCanvas.width/2, emptyCanvas.height/2);
+  }
+
+  // ── Funnel
+  var f = d.funnel || {};
+  var fSteps = [
+    { lbl: 'Visited', n: f.visits || 0 },
+    { lbl: 'Generation started', n: f.generation_started || 0 },
+    { lbl: 'Generation completed', n: f.generation_completed || 0 },
+    { lbl: 'Voice generated', n: f.voice_generated || 0 },
+    { lbl: 'Video created', n: f.video_created || 0 }
+  ];
+  var max = Math.max.apply(null, fSteps.map(function(s){ return s.n; })) || 1;
+  document.getElementById('funnel').innerHTML = fSteps.map(function(s){
+    var pct = Math.round((s.n / max) * 100);
+    return '<div class="funnel-row"><div class="funnel-lbl">' + s.lbl + '</div>' +
+      '<div class="funnel-bar-bg"><div class="funnel-bar" style="width:' + pct + '%">' + pct + '%</div></div>' +
+      '<div class="funnel-count">' + s.n.toLocaleString() + '</div></div>';
+  }).join('');
+
+  // ── All events stacked area
+  upsertChart('allEventsChart', {
+    type: 'line',
+    data: {
+      labels: d.dates,
+      datasets: [
+        { label: 'Page views',         data: series.page_view,            borderColor: '#5B8FE8', fill: false, tension: 0.3 },
+        { label: 'Started',            data: series.generation_started,   borderColor: '#E8A020', fill: false, tension: 0.3 },
+        { label: 'Completed',          data: series.generation_completed, borderColor: '#00D4A0', fill: false, tension: 0.3 },
+        { label: 'Failed',             data: series.generation_failed,    borderColor: '#EF4444', fill: false, tension: 0.3 },
+        { label: 'Voice',              data: series.voice_generated,      borderColor: '#7C5CFC', fill: false, tension: 0.3 },
+        { label: 'Video',              data: series.video_created,        borderColor: '#FF6B9D', fill: false, tension: 0.3 },
+        { label: 'Feedback',           data: series.feedback_submitted,   borderColor: '#F5C842', fill: false, tension: 0.3, borderDash: [5,5] },
+        { label: 'Tutorial',           data: series.tutorial_opened,      borderColor: '#A89B8A', fill: false, tension: 0.3, borderDash: [3,3] }
+      ]
+    },
+    options: chartOpts()
+  });
+}
+
+function chartOpts() {
+  return {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { labels: { color: '#A89B8A', font: { size: 11 } } } },
+    scales: {
+      x: { ticks: { color: '#6B5F52', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+      y: { ticks: { color: '#6B5F52', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' }, beginAtZero: true }
+    }
+  };
+}
+
+function upsertChart(id, cfg) {
+  if (CHARTS[id]) { CHARTS[id].destroy(); }
+  var ctx = document.getElementById(id).getContext('2d');
+  CHARTS[id] = new Chart(ctx, cfg);
+}
+</script>
+</body>
+</html>

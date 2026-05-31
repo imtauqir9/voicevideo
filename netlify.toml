@@ -21,6 +21,12 @@
 [functions."feedback"]
   timeout = 10
 
+[functions."track"]
+  timeout = 5
+
+[functions."stats"]
+  timeout = 8
+
 # Allow the app to call the function endpoints with the right MIME types
 [[headers]]
   for = "/.netlify/functions/*"

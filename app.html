@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>VoiceVideo — Voice & Video Creator</title>
+<!-- Plausible Analytics: privacy-friendly page views + custom events -->
+<script defer data-domain="voicevideo.io" src="https://plausible.io/js/script.tagged-events.outbound-links.js"></script>
+<script>window.plausible=window.plausible||function(){(window.plausible.q=window.plausible.q||[]).push(arguments)}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -1673,93 +1676,6 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
     Free demo &middot; loading remaining quota...
   </div>
 
-  <!-- ── WHAT'S NEW + REVIEW BANNER ─────────────────────── -->
-  <style>
-    .whats-new{display:none;position:relative;padding:20px 22px;margin-bottom:24px;background:linear-gradient(135deg,rgba(232,160,32,.05),rgba(124,92,252,.04));border:1px solid rgba(232,160,32,.22);border-radius:14px;animation:wn-in .4s ease-out}
-    .whats-new.show{display:block}
-    @keyframes wn-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
-    .wn-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px}
-    .wn-eyebrow{font-family:'DM Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.22em;color:#E8A020;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:8px}
-    .wn-eyebrow::before{content:'';width:6px;height:6px;border-radius:999px;background:#E8A020;box-shadow:0 0 0 4px rgba(232,160,32,.2);animation:wn-pulse 2s ease-in-out infinite}
-    @keyframes wn-pulse{0%,100%{opacity:1}50%{opacity:.55}}
-    .wn-title{font-family:'Playfair Display',Georgia,serif;font-weight:700;font-size:22px;color:#F7F2EA;letter-spacing:-.01em;margin:0}
-    .wn-title em{font-style:italic;color:#E8A020}
-    .wn-close{background:none;border:none;color:rgba(247,242,234,.4);font-size:18px;cursor:pointer;padding:4px 8px;line-height:1;border-radius:6px}
-    .wn-close:hover{color:#F7F2EA;background:rgba(255,255,255,.04)}
-    .wn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:18px}
-    .wn-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:rgba(26,20,16,.5);border:1px solid rgba(255,255,255,.06);border-radius:9px}
-    .wn-item-tag{font-family:'DM Mono',ui-monospace,monospace;font-size:9px;color:#E8A020;background:rgba(232,160,32,.12);padding:3px 7px;border-radius:999px;letter-spacing:.12em;flex-shrink:0;margin-top:1px}
-    .wn-item-text{font-family:'DM Sans',system-ui,sans-serif;font-size:12.5px;color:rgba(247,242,234,.78);line-height:1.45}
-    .wn-item-text strong{color:#F7F2EA;font-weight:600}
-    .wn-cta-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-    .wn-cta-primary{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:#E8A020;color:#1A0F00;font-family:'DM Sans',system-ui,sans-serif;font-weight:700;font-size:13px;border-radius:9px;border:none;cursor:pointer;letter-spacing:.02em;box-shadow:0 6px 18px -8px rgba(232,160,32,.6),0 1px 0 rgba(255,255,255,.14) inset;transition:transform .12s,background .15s}
-    .wn-cta-primary:hover{background:#F5C842;transform:translateY(-1px)}
-    .wn-cta-ghost{display:inline-flex;align-items:center;gap:6px;padding:10px 14px;background:rgba(255,255,255,.02);color:rgba(247,242,234,.7);font-family:'DM Mono',ui-monospace,monospace;font-size:11px;border:1px solid rgba(255,255,255,.1);border-radius:9px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;transition:border-color .15s,color .15s}
-    .wn-cta-ghost:hover{border-color:rgba(232,160,32,.4);color:#E8A020}
-    .wn-footnote{font-family:'DM Mono',ui-monospace,monospace;font-size:10px;color:rgba(247,242,234,.4);letter-spacing:.08em;margin-left:auto}
-  </style>
-  <div class="whats-new" id="whatsNew">
-    <div class="wn-head">
-      <div>
-        <div class="wn-eyebrow">New in this version &middot; v2</div>
-        <h3 class="wn-title">What's <em>new</em> for review</h3>
-      </div>
-      <button class="wn-close" onclick="dismissWhatsNew()" title="Hide" aria-label="Hide">&times;</button>
-    </div>
-    <div class="wn-grid">
-      <div class="wn-item"><span class="wn-item-tag">UI</span><div class="wn-item-text"><strong>Studio redesign</strong> &mdash; sticky nav, slim header, pipeline indicator at the top</div></div>
-      <div class="wn-item"><span class="wn-item-tag">VERIFY</span><div class="wn-item-text"><strong>Donut gauges + Trust Score</strong> replace plain text scores in the 5-layer audit</div></div>
-      <div class="wn-item"><span class="wn-item-tag">VERIFY</span><div class="wn-item-text"><strong>Multi-provider cross-check</strong> &mdash; GPT-4 / Gemini / Mistral score every layer in parallel</div></div>
-      <div class="wn-item"><span class="wn-item-tag">GROUND</span><div class="wn-item-text"><strong>Web-search grounding</strong> &mdash; optional toggle pulls live sources to reduce hallucinations</div></div>
-      <div class="wn-item"><span class="wn-item-tag">EXPORT</span><div class="wn-item-text"><strong>Branded .docx and .pptx</strong> &mdash; warm dark amber, Playfair headings, metadata strip</div></div>
-      <div class="wn-item"><span class="wn-item-tag">VIDEO</span><div class="wn-item-text"><strong>HD video render</strong> &mdash; 1080p default, designer slides, Ken Burns motion, intro + outro</div></div>
-      <div class="wn-item"><span class="wn-item-tag">SECURITY</span><div class="wn-item-text"><strong>Production hardening</strong> &mdash; rate limits, origin checks, honeypot, CSP headers</div></div>
-      <div class="wn-item"><span class="wn-item-tag">FEEDBACK</span><div class="wn-item-text"><strong>In-app feedback widget</strong> &mdash; pencil button, every submission lands in the public backlog</div></div>
-    </div>
-    <div class="wn-cta-row">
-      <button class="wn-cta-primary" onclick="dismissWhatsNew();fbOpen();">Leave a review &rarr;</button>
-      <button class="wn-cta-ghost" onclick="dismissWhatsNew()">Got it</button>
-      <span class="wn-footnote">2 minutes &middot; helps me prioritise v3</span>
-    </div>
-  </div>
-  <script>
-    // The "What's new" banner is for REVIEWERS only.
-    // It appears when the URL has ?review=1 (or ?review).
-    // Once a reviewer arrives via that link, the flag is stored in localStorage
-    // so they can come back to a plain URL and still see it (until they dismiss).
-    (function(){
-      try {
-        var KEY_DISMISS = 'vv_whatsnew_v2';
-        var KEY_FLAG    = 'vv_reviewer';
-        var params = new URLSearchParams(window.location.search);
-        var isReviewer = params.has('review');
-        if (isReviewer) {
-          localStorage.setItem(KEY_FLAG, 'yes');
-        }
-        var flagged = localStorage.getItem(KEY_FLAG) === 'yes';
-        var dismissed = localStorage.getItem(KEY_DISMISS) === 'dismissed';
-        if (flagged && !dismissed) {
-          var el = document.getElementById('whatsNew');
-          if (el) el.classList.add('show');
-        }
-      } catch(e){}
-    })();
-    function dismissWhatsNew(){
-      try { localStorage.setItem('vv_whatsnew_v2', 'dismissed'); } catch(e){}
-      var el = document.getElementById('whatsNew');
-      if (el) el.classList.remove('show');
-    }
-    // For your own testing: open DevTools console and run showWhatsNew()
-    function showWhatsNew(){
-      try {
-        localStorage.removeItem('vv_whatsnew_v2');
-        localStorage.setItem('vv_reviewer', 'yes');
-      } catch(e){}
-      var el = document.getElementById('whatsNew');
-      if (el) el.classList.add('show');
-    }
-  </script>
-
   <!-- PIPELINE PROGRESS STRIP -->
   <style>
     .pipeline-strip{display:flex;align-items:center;gap:6px;padding:14px 18px;margin-bottom:24px;background:rgba(26,20,16,.55);border:1px solid rgba(255,255,255,.07);border-radius:14px;overflow-x:auto;scrollbar-width:none}
@@ -2331,6 +2247,18 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
       </button>
     </div>
 
+    <!-- ── Perfect-sync voice generation (per-section) ── -->
+    <div style="margin-top:14px;padding:14px;background:rgba(232,160,32,.04);border:1px solid rgba(232,160,32,.22);border-radius:10px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:220px">
+          <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.18em;color:#E8A020;text-transform:uppercase;margin-bottom:6px">Perfect sync mode</div>
+          <div style="font-family:'DM Sans',sans-serif;font-size:13px;color:#F7F2EA;font-weight:600">Generate voice per section</div>
+          <div style="font-family:'DM Sans',sans-serif;font-size:11.5px;color:rgba(247,242,234,.55);margin-top:4px;line-height:1.4">One ElevenLabs clip per slide section. Video slides switch exactly when each clip ends &mdash; zero drift.</div>
+        </div>
+        <button id="genPerSectionBtn" onclick="generatePerSectionVoice()" style="padding:10px 18px;background:rgba(232,160,32,.12);color:#E8A020;border:1px solid rgba(232,160,32,.4);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;letter-spacing:.04em">Generate per-section &rarr;</button>
+      </div>
+    </div>
+
   </div><!-- end phase2Panel -->
 
   <!-- Sticky bar CTA -->
@@ -2472,6 +2400,15 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
           <option value="1440">Premium &middot; 1440p</option>
           <option value="2160">Ultra &middot; 4K (slow)</option>
         </select>
+        <label style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(247,242,234,.55);letter-spacing:.12em;text-transform:uppercase;margin:0">Aspect</label>
+        <select id="videoAspect" style="padding:8px 12px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#F7F2EA;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer">
+          <option value="16:9" selected>16:9 YouTube</option>
+          <option value="9:16">9:16 Shorts / Reels / TikTok</option>
+          <option value="1:1">1:1 Instagram square</option>
+        </select>
+        <label style="display:inline-flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:10px;color:rgba(247,242,234,.55);letter-spacing:.12em;text-transform:uppercase;margin:0;cursor:pointer">
+          <input type="checkbox" id="videoSubtitles" style="margin:0;cursor:pointer"> Burn captions
+        </label>
         <button class="run-btn" id="createVideoBtn" onclick="if(document.getElementById('videoQuality'))document.getElementById('videoQuality').value=document.getElementById('videoQualityMain').value;createVideo()" style="border-radius:8px;margin:0;background:var(--amber);color:var(--ink);flex:1;min-width:240px">
           <div class="run-spinner" id="videoSpinner" style="display:none"></div>
           <span id="createVideoLabel">&#9654;&#65038; Create video from my content</span>
@@ -2867,6 +2804,155 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 
 
 <audio id="audioEl" style="display:none"></audio>
+
+<!-- ── ANALYTICS ──────────────────────────────────────────────────
+     Cloudflare Web Analytics (privacy-friendly, no cookies).
+     Replace VV_CF_TOKEN with the token from your Cloudflare Web Analytics property.
+-->
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"VV_CF_TOKEN"}'></script>
+
+<script>
+// Anonymous event tracking via our own Netlify Function.
+// No PII collected — only event names + small prop strings.
+(function(){
+  var ENDPOINT = '/.netlify/functions/track';
+  window.vvTrack = function(eventName, props) {
+    try {
+      fetch(ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event: eventName, props: props || {} }),
+        keepalive: true
+      }).catch(function(){});
+    } catch (e) {}
+  };
+  // Fire one page_view per load
+  window.addEventListener('load', function(){
+    vvTrack('page_view', { page: 'app' });
+    setTimeout(wireTracking, 800); // wait for DOM to settle
+  });
+
+  function getSel(id) { var el = document.getElementById(id); return el ? el : null; }
+  function getVal(id) {
+    var el = getSel(id); return el ? (el.value || '').trim() : '';
+  }
+
+  function wireTracking() {
+    // ── Generation started: when the Generate button is clicked
+    var runBtn = getSel('runBtn');
+    if (runBtn) {
+      runBtn.addEventListener('click', function() {
+        var topic = getVal('topic');
+        if (!topic) return;
+        var lenEl = getSel('length');
+        var toneEl = getSel('tone');
+        vvTrack('generation_started', {
+          type: (window.selectedType || 'essay'),
+          length: lenEl ? lenEl.value : '',
+          tone: toneEl ? toneEl.value : ''
+        });
+        // Track if user provided their own key
+        var ck = getVal('claudeKey');
+        if (ck && ck.startsWith('sk-ant-')) vvTrack('own_key_used', { provider: 'claude' });
+      });
+    }
+
+    // ── Generation completed: watch the generatedContent global
+    var lastSeenLen = 0;
+    setInterval(function() {
+      try {
+        var content = window.generatedContent || '';
+        if (content && content.length > 200 && content.length !== lastSeenLen) {
+          lastSeenLen = content.length;
+          vvTrack('generation_completed', {
+            type: (window.selectedType || 'essay'),
+            length: (getSel('length') || {}).value || ''
+          });
+        }
+      } catch (e) {}
+    }, 2500);
+
+    // ── Voice generated: watch the audioBlob global
+    var lastAudioSize = 0;
+    setInterval(function() {
+      try {
+        var a = window.audioBlob;
+        if (a && a.size && a.size !== lastAudioSize) {
+          lastAudioSize = a.size;
+          var hasOwnKey = getVal('elKey') && !getVal('elKey').startsWith('__');
+          vvTrack('voice_generated', {
+            provider: hasOwnKey ? 'own' : 'demo'
+          });
+          if (hasOwnKey) vvTrack('own_key_used', { provider: 'elevenlabs' });
+        }
+      } catch (e) {}
+    }, 2500);
+
+    // ── Video created: hook the Create video button(s)
+    ['createVideoBtn', 'renderSlideBtn'].forEach(function(id){
+      var btn = getSel(id);
+      if (btn) {
+        btn.addEventListener('click', function() {
+          var aspEl = getSel('videoAspect');
+          var qEl = getSel('videoQualityMain') || getSel('videoQuality');
+          vvTrack('video_created', {
+            aspect: aspEl ? aspEl.value : '16:9',
+            quality: qEl ? qEl.value : ''
+          });
+        });
+      }
+    });
+
+    // ── Document downloads
+    ['downloadWord','downloadPPT','downloadPDF','downloadContent','downloadMarkdown'].forEach(function(fname){
+      var orig = window[fname];
+      if (typeof orig === 'function') {
+        window[fname] = function() {
+          var formatMap = { downloadWord:'docx', downloadPPT:'pptx', downloadPDF:'pdf', downloadContent:'txt', downloadMarkdown:'md' };
+          vvTrack('document_downloaded', { format: formatMap[fname] || 'other' });
+          return orig.apply(this, arguments);
+        };
+      }
+    });
+
+    // ── Feedback submitted: hook fbSubmit if present
+    if (typeof window.fbSubmit === 'function') {
+      var origFb = window.fbSubmit;
+      window.fbSubmit = function() {
+        try {
+          var r = (window.fbState && window.fbState.rating) || 3;
+          vvTrack('feedback_submitted', { rating: String(r) });
+        } catch (e) {}
+        return origFb.apply(this, arguments);
+      };
+    }
+  }
+
+  // Track outbound to tutorial
+  document.addEventListener('click', function(e){
+    var a = e.target.closest && e.target.closest('a[href*="Tutorial.html"]');
+    if (a) vvTrack('tutorial_opened', {});
+  });
+})();
+</script>
+
+<!-- ── WATCH TUTORIAL BUTTON ──────────────────────────────────── -->
+<style>
+  .tut-btn{position:fixed;left:22px;bottom:22px;z-index:200;display:inline-flex;align-items:center;gap:9px;padding:11px 18px;background:rgba(26,20,16,.85);color:#F7F2EA;border:1px solid rgba(232,160,32,.35);border-radius:999px;font-family:'DM Mono',ui-monospace,monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;cursor:pointer;backdrop-filter:saturate(140%) blur(10px);-webkit-backdrop-filter:saturate(140%) blur(10px);box-shadow:0 8px 24px -10px rgba(0,0,0,.6);transition:border-color .15s,background .15s,transform .12s}
+  .tut-btn:hover{border-color:rgba(232,160,32,.7);background:rgba(232,160,32,.12);color:#E8A020;transform:translateY(-1px)}
+  .tut-btn:active{transform:translateY(0)}
+  .tut-btn .tut-play{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:999px;background:#E8A020;color:#1A0F00;font-size:9px}
+  .tut-btn .tut-meta{color:rgba(247,242,234,.45);font-weight:400}
+  @media (max-width:520px){
+    .tut-btn{left:14px;bottom:14px;padding:9px 14px;font-size:10px;letter-spacing:.1em}
+    .tut-btn .tut-meta{display:none}
+  }
+</style>
+<a class="tut-btn" href="VoiceVideo_Tutorial.html" target="_blank" rel="noopener" title="Watch the 3-minute tutorial">
+  <span class="tut-play" aria-hidden="true">&#9654;</span>
+  <span>Watch tutorial</span>
+  <span class="tut-meta">3 min</span>
+</a>
 
 <!-- ── FEEDBACK WIDGET ─────────────────────────────────────────── -->
 <style>
@@ -3400,10 +3486,144 @@ function setupAudio(blob) {
   a.onended = function() { var b=qs('playBtn'); if(b) b.textContent='\u25B6'; };
 }
 
+// ── Visualization CDNs (lazy-loaded on first use) ─────────────────
+var _vizLibsLoaded = { chart: false, mermaid: false };
+function loadScriptOnce(src, globalName) {
+  return new Promise(function(resolve, reject) {
+    if (window[globalName]) return resolve(window[globalName]);
+    var s = document.createElement('script');
+    s.src = src;
+    s.onload = function() { resolve(window[globalName]); };
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+function ensureChartJs() {
+  return loadScriptOnce('https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js', 'Chart');
+}
+function ensureMermaid() {
+  return loadScriptOnce('https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js', 'mermaid').then(function(m){
+    if (m && !_vizLibsLoaded.mermaidInit) {
+      m.initialize({ startOnLoad: false, theme: 'dark', themeVariables: {
+        primaryColor: '#1A1410', primaryTextColor: '#F7F2EA', primaryBorderColor: '#E8A020',
+        lineColor: '#E8A020', secondaryColor: '#221B14', tertiaryColor: '#0A0806',
+        background: '#0A0806', mainBkg: '#1A1410', fontFamily: 'DM Sans, sans-serif'
+      } });
+      _vizLibsLoaded.mermaidInit = true;
+    }
+    return m;
+  });
+}
+
+// ── Visualization syntax parser ──────────────────────────────────
+// Supports:
+//   [chart: type=bar | labels=Q1,Q2,Q3,Q4 | values=120,180,210,260 | title=Quarterly Revenue]
+//   ```mermaid\nflowchart LR\n  A --> B\n```
+//   [stat: $0.12 | per video | Claude + ElevenLabs]
+//   [callout: This is a key insight worth highlighting]
+function processVisualizations(text) {
+  // Extract chart blocks
+  var charts = [];
+  text = text.replace(/\[chart:\s*([^\]]+)\]/gi, function(_, body) {
+    var p = {};
+    body.split('|').forEach(function(pair) {
+      var kv = pair.trim().split('=');
+      if (kv.length === 2) p[kv[0].trim()] = kv[1].trim();
+    });
+    var idx = charts.length;
+    charts.push(p);
+    return '<div class="viz-chart" data-idx="' + idx + '" style="margin:20px 0;padding:18px;background:rgba(26,20,16,.6);border:1px solid rgba(232,160,32,.2);border-radius:10px;min-height:260px"><div class="chart-title" style="font-family:Georgia,serif;font-weight:700;color:#F7F2EA;margin-bottom:10px;font-size:15px">' + (p.title || 'Chart') + '</div><canvas></canvas></div>';
+  });
+  // Extract mermaid blocks
+  var mermaids = [];
+  text = text.replace(/```mermaid\n([\s\S]+?)\n```/g, function(_, code) {
+    var idx = mermaids.length;
+    mermaids.push(code.trim());
+    return '<div class="viz-mermaid" data-idx="' + idx + '" style="margin:20px 0;padding:18px;background:rgba(26,20,16,.6);border:1px solid rgba(124,92,252,.25);border-radius:10px;display:flex;justify-content:center"></div>';
+  });
+  // Stat callouts
+  text = text.replace(/\[stat:\s*([^|]+)\|\s*([^|]+)\|\s*([^\]]+)\]/gi, function(_, num, lbl, sub) {
+    return '<div style="display:inline-block;margin:8px 12px 8px 0;padding:14px 22px;background:rgba(232,160,32,.06);border:1px solid rgba(232,160,32,.25);border-radius:10px;vertical-align:top"><div style="font-family:Georgia,serif;font-weight:900;color:#E8A020;font-size:28px;line-height:1">' + num.trim() + '</div><div style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:.16em;color:rgba(247,242,234,.5);text-transform:uppercase;margin-top:4px">' + lbl.trim() + '</div><div style="font-family:\'DM Sans\',sans-serif;font-size:11px;color:rgba(247,242,234,.65);margin-top:2px">' + sub.trim() + '</div></div>';
+  });
+  // Callouts
+  text = text.replace(/\[callout:\s*([^\]]+)\]/gi, function(_, body) {
+    return '<div style="margin:18px 0;padding:16px 18px;background:rgba(232,160,32,.05);border-left:4px solid #E8A020;border-radius:0 8px 8px 0;font-family:Georgia,serif;font-style:italic;font-size:16px;color:#F7F2EA;line-height:1.5">' + body.trim() + '</div>';
+  });
+  return { text: text, charts: charts, mermaids: mermaids };
+}
+
+function renderChartsAndDiagrams(viz) {
+  if (viz.charts.length) {
+    ensureChartJs().then(function() {
+      document.querySelectorAll('.viz-chart').forEach(function(el) {
+        var idx = parseInt(el.getAttribute('data-idx'), 10);
+        var p = viz.charts[idx]; if (!p) return;
+        var canvas = el.querySelector('canvas');
+        if (!canvas || canvas.__rendered) return;
+        canvas.__rendered = true;
+        var labels = (p.labels || '').split(',').map(function(s){return s.trim();});
+        var values = (p.values || '').split(',').map(function(s){return parseFloat(s.trim()) || 0;});
+        var type = (p.type || 'bar').toLowerCase();
+        var palette = ['#E8A020','#5B8FE8','#00D4A0','#7C5CFC','#FF6B9D','#F5C842'];
+        try {
+          new Chart(canvas.getContext('2d'), {
+            type: type === 'donut' ? 'doughnut' : type,
+            data: {
+              labels: labels,
+              datasets: [{
+                label: p.title || '',
+                data: values,
+                backgroundColor: (type === 'pie' || type === 'donut' || type === 'doughnut') ? palette : '#E8A020',
+                borderColor: '#E8A020',
+                borderWidth: 1.5,
+                tension: 0.3
+              }]
+            },
+            options: {
+              responsive: true, maintainAspectRatio: false,
+              plugins: { legend: { labels: { color: '#A89B8A' } } },
+              scales: (type === 'pie' || type === 'donut' || type === 'doughnut') ? {} : {
+                x: { ticks: { color: '#A89B8A' }, grid: { color: 'rgba(255,255,255,0.06)' } },
+                y: { ticks: { color: '#A89B8A' }, grid: { color: 'rgba(255,255,255,0.06)' } }
+              }
+            }
+          });
+        } catch (e) { console.warn('Chart render failed:', e); }
+      });
+    }).catch(function(e){ console.warn('Chart.js load failed:', e); });
+  }
+  if (viz.mermaids.length) {
+    ensureMermaid().then(function(mermaid) {
+      document.querySelectorAll('.viz-mermaid').forEach(function(el) {
+        if (el.__rendered) return;
+        el.__rendered = true;
+        var idx = parseInt(el.getAttribute('data-idx'), 10);
+        var code = viz.mermaids[idx]; if (!code) return;
+        var id = 'mmd-' + Date.now() + '-' + idx;
+        mermaid.render(id, code).then(function(out) {
+          el.innerHTML = out.svg;
+        }).catch(function(e){
+          el.innerHTML = '<div style="color:#EF4444;font-family:monospace;font-size:12px">Mermaid render error: ' + e.message + '</div>';
+        });
+      });
+    }).catch(function(e){ console.warn('Mermaid load failed:', e); });
+  }
+}
+
 // ── Render content ────────────────────────────────────────────────
 function renderContent(text) {
   var body = qs('cpBody'); if (!body) return;
-  var html = text
+  // Step 1: extract visualization blocks BEFORE HTML escaping
+  var viz = processVisualizations(text);
+  var processed = viz.text;
+  // Step 2: now HTML-escape only the parts that AREN'T injected viz HTML
+  // We mark viz blocks with sentinels, escape the rest, then restore.
+  var vizBlocks = [];
+  processed = processed.replace(/<div class="viz-[\s\S]+?<\/div>|<div style="display:inline-block[\s\S]+?<\/div>|<div style="margin:18px 0;padding[\s\S]+?<\/div>/g, function(m) {
+    vizBlocks.push(m);
+    return '\x00VIZ' + (vizBlocks.length - 1) + '\x00';
+  });
+  var html = processed
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/^## (.+)$/gm,'<h2>$1</h2>')
     .replace(/^### (.+)$/gm,'<h3>$1</h3>')
@@ -3411,10 +3631,13 @@ function renderContent(text) {
     .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
     .replace(/\*(.+?)\*/g,'<em>$1</em>')
     .replace(/^[-*] (.+)$/gm,'<li>$1</li>');
+  html = html.replace(/\x00VIZ(\d+)\x00/g, function(_, i) { return vizBlocks[parseInt(i,10)] || ''; });
   body.innerHTML = html.split('\n\n').map(function(p) {
     p = p.trim();
     return p ? (p.charAt(0)==='<' ? p : '<p>' + p.replace(/\n/g,'<br>') + '</p>') : '';
   }).join('');
+  // Step 3: render charts and Mermaid diagrams
+  renderChartsAndDiagrams(viz);
 }
 
 // ── Downloads ─────────────────────────────────────────────────────
@@ -4308,6 +4531,88 @@ function renderSlideVideo(){
   });
 }
 
+// ── Per-section audio (perfect sync) ─────────────────────────────
+// Stores: [{ text, blob, audioBuffer, duration, startTime }, ...]
+var perSectionAudio = null;
+
+// Generate one ElevenLabs clip per title card. The render uses each clip's
+// real duration as that section's slide duration — perfect sync, no drift.
+async function generatePerSectionVoice() {
+  if (!generatedContent) { alert('Generate content first'); return; }
+  var ek = qs('elKey'); var elKey = ek ? ek.value.trim() : '';
+  if (!elKey) { alert('Enter your ElevenLabs API key first (or paste any key — demo mode supported)'); return; }
+  buildTitleCardsData();
+  if (!titleCards || titleCards.length === 0) { alert('No sections found'); return; }
+  var voiceId = (qs('voiceId') || {}).value || 'kmiDQH3kczbRzoifN5Qv';
+  var stab = parseFloat((qs('voiceStability') || {}).value) || 0.45;
+  // Use voice button to show progress
+  var btn = qs('genPerSectionBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Generating 0/' + titleCards.length + '...'; }
+  var sections = titleCards.map(function(c) {
+    var t = (c.heading || '') + (c.body ? '. ' + c.body : '') + '.';
+    return { text: t.replace(/\*\*/g,'').replace(/\*/g,'').substring(0, 1000) };
+  });
+  var results = [];
+  var cumulativeTime = 0;
+  for (var i = 0; i < sections.length; i++) {
+    if (btn) btn.textContent = 'Generating ' + (i+1) + '/' + sections.length + '...';
+    try {
+      var blob = await voiceText(elKey, sections[i].text, voiceId, stab);
+      var dur = await getBlobDuration(blob);
+      results.push({
+        text: sections[i].text,
+        blob: blob,
+        duration: dur,
+        startTime: cumulativeTime
+      });
+      cumulativeTime += dur;
+      // Pause briefly between calls
+      await new Promise(function(r) { setTimeout(r, 400); });
+    } catch (err) {
+      console.warn('Section ' + i + ' voice failed:', err);
+      if (btn) btn.textContent = 'Failed on section ' + (i+1) + ' — try again';
+      if (btn) { btn.disabled = false; }
+      return;
+    }
+  }
+  perSectionAudio = results;
+  // Concatenate all blobs for unified audioBlob (so existing playback works)
+  var combinedBuffers = [];
+  for (var j = 0; j < results.length; j++) {
+    combinedBuffers.push(await results[j].blob.arrayBuffer());
+  }
+  var totalLen = combinedBuffers.reduce(function(s, b) { return s + b.byteLength; }, 0);
+  var combined = new Uint8Array(totalLen);
+  var off = 0;
+  combinedBuffers.forEach(function(b) { combined.set(new Uint8Array(b), off); off += b.byteLength; });
+  audioBlob = new Blob([combined], { type: 'audio/mpeg' });
+  // Update audio player
+  var audioEl = qs('audioEl');
+  if (audioEl) audioEl.src = URL.createObjectURL(audioBlob);
+  var ac = qs('audioCard'); if (ac) ac.style.display = 'block';
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = '✓ ' + results.length + ' sections generated (perfect sync ready)';
+    btn.style.background = '#00D4A0';
+    btn.style.color = '#0A2A22';
+  }
+  console.log('Per-section audio ready:', results.map(function(r){ return r.duration.toFixed(1) + 's'; }).join(' + '), '= ' + cumulativeTime.toFixed(1) + 's total');
+}
+
+function getBlobDuration(blob) {
+  return new Promise(function(resolve) {
+    var a = new Audio();
+    a.preload = 'metadata';
+    a.src = URL.createObjectURL(blob);
+    a.addEventListener('loadedmetadata', function() {
+      resolve(a.duration);
+      URL.revokeObjectURL(a.src);
+    });
+    a.addEventListener('error', function() { resolve(5); });
+    setTimeout(function() { resolve(5); }, 3000);
+  });
+}
+
 // ── Title card video render (designer slides, no images needed) ──
 // Renders brand-matched canvas slides directly from generatedContent,
 // pipes them through the existing slide-render pipeline (intro/outro,
@@ -4320,7 +4625,15 @@ function createVideo() {
   // Read quality picker (try main one first, fall back to hidden one)
   var qElMain = qs('videoQualityMain'); var qEl = qs('videoQuality');
   var qVal = (qElMain && qElMain.value) || (qEl && qEl.value) || '1080';
-  var qMap = { '720':{W:1280,H:720}, '1080':{W:1920,H:1080}, '1440':{W:2560,H:1440}, '2160':{W:3840,H:2160} };
+  var aspectEl = qs('videoAspect'); var aspectVal = aspectEl ? aspectEl.value : '16:9';
+  var qMap;
+  if (aspectVal === '9:16') {
+    qMap = { '720':{W:720,H:1280}, '1080':{W:1080,H:1920}, '1440':{W:1440,H:2560}, '2160':{W:2160,H:3840} };
+  } else if (aspectVal === '1:1') {
+    qMap = { '720':{W:720,H:720}, '1080':{W:1080,H:1080}, '1440':{W:1440,H:1440}, '2160':{W:2160,H:2160} };
+  } else {
+    qMap = { '720':{W:1280,H:720}, '1080':{W:1920,H:1080}, '1440':{W:2560,H:1440}, '2160':{W:3840,H:2160} };
+  }
   var QS = qMap[qVal] || qMap['1080'];
   // Pre-render every title card as a styled canvas image
   var t = qs('topic'); var topicVal = t ? t.value.trim() : 'VoiceVideo';
@@ -4379,9 +4692,15 @@ function renderDesignerSlide(opts) {
   }
   // Manual letter-spacing for canvas (canvas doesn't natively support it well)
   drawSpacedText(ctx, eyebrowText, pad, Math.round(H * 0.075), eyebrowPx * 0.18);
-  // Big heading
+  // Big heading — auto-adjust for portrait (9:16) vs landscape
+  var isPortrait = H > W;
   var heading = (opts.heading || '').replace(/\*\*/g,'').replace(/\*/g,'');
-  var titlePxBase = opts.isTitle ? 0.13 : 0.085;
+  var titlePxBase;
+  if (isPortrait) {
+    titlePxBase = opts.isTitle ? 0.08 : 0.055; // smaller relative to height for portrait
+  } else {
+    titlePxBase = opts.isTitle ? 0.13 : 0.085;
+  }
   var headPx = Math.round(H * titlePxBase);
   ctx.fillStyle = '#F7F2EA';
   var headFont = (opts.isTitle ? 'italic ' : '') + '700 ' + headPx + 'px Georgia, serif';
@@ -4501,13 +4820,32 @@ function __executeRenderPipeline(slidesArr) {
   var sdEl = qs('slideDur'); var slideDurInput = parseFloat(sdEl ? sdEl.value : 5) || 5;
   var trEl = qs('slideTrans'); var trans = trEl ? trEl.value : 'fade';
   var qEl = qs('videoQuality'); var qVal = qEl ? qEl.value : '1080';
-  var qualityMap = {
-    '720':  {W:1280, H:720,  FPS:30, bitrate: 4000000},
-    '1080': {W:1920, H:1080, FPS:30, bitrate: 8000000},
-    '1440': {W:2560, H:1440, FPS:30, bitrate:14000000},
-    '2160': {W:3840, H:2160, FPS:30, bitrate:24000000}
-  };
+  var aspEl = qs('videoAspect'); var aspectVal = aspEl ? aspEl.value : '16:9';
+  var qualityMap;
+  if (aspectVal === '9:16') {
+    qualityMap = {
+      '720':  {W:720,  H:1280, FPS:30, bitrate: 4000000},
+      '1080': {W:1080, H:1920, FPS:30, bitrate: 8000000},
+      '1440': {W:1440, H:2560, FPS:30, bitrate:14000000},
+      '2160': {W:2160, H:3840, FPS:30, bitrate:24000000}
+    };
+  } else if (aspectVal === '1:1') {
+    qualityMap = {
+      '720':  {W:720,  H:720,  FPS:30, bitrate: 4000000},
+      '1080': {W:1080, H:1080, FPS:30, bitrate: 8000000},
+      '1440': {W:1440, H:1440, FPS:30, bitrate:14000000},
+      '2160': {W:2160, H:2160, FPS:30, bitrate:24000000}
+    };
+  } else {
+    qualityMap = {
+      '720':  {W:1280, H:720,  FPS:30, bitrate: 4000000},
+      '1080': {W:1920, H:1080, FPS:30, bitrate: 8000000},
+      '1440': {W:2560, H:1440, FPS:30, bitrate:14000000},
+      '2160': {W:3840, H:2160, FPS:30, bitrate:24000000}
+    };
+  }
   var qSel = qualityMap[qVal] || qualityMap['1080'];
+  var burnCaptions = (qs('videoSubtitles') || {}).checked;
   var W = qSel.W, H = qSel.H, FPS = qSel.FPS, BITRATE = qSel.bitrate;
   var rsbtn = qs('createVideoBtn'); if (rsbtn) rsbtn.disabled = true;
   setRenderProgress(2, 'Setting up...');
@@ -4524,7 +4862,13 @@ function __executeRenderPipeline(slidesArr) {
     rec.ondataavailable = function(e){ if (e.data.size > 0) chunks.push(e.data); };
     var INTRO_DUR = 1.5, OUTRO_DUR = 1.5;
     var audioDur = decoded.duration;
-    var slideDur = audioDur / slidesArr.length; // auto-fit
+    // Per-section sync: if perSectionAudio exists, use each section's real duration
+    var sectionTimings = null;
+    if (perSectionAudio && perSectionAudio.length === slidesArr.length) {
+      sectionTimings = perSectionAudio.map(function(s) { return { start: s.startTime, dur: s.duration }; });
+      console.log('Using per-section timings for perfect sync:', sectionTimings.map(function(t){return t.dur.toFixed(1)+'s'}).join(','));
+    }
+    var slideDur = audioDur / slidesArr.length; // even fallback
     var totalDur = INTRO_DUR + audioDur + OUTRO_DUR;
     var startTime = null, stopped = false, audioStarted = false;
     function easeOutCubic(x){ return 1 - Math.pow(1 - x, 3); }
@@ -4639,10 +4983,25 @@ function __executeRenderPipeline(slidesArr) {
         setRenderProgress(Math.round(progress*90)+5,'Rendering '+H+'p... '+Math.floor(elapsed)+'s / '+Math.floor(totalDur)+'s');
         requestAnimationFrame(frame); return;
       }
-      // Main: pick the slide and draw with Ken Burns
-      var si = Math.min(Math.floor(mainElapsed / slideDur), slidesArr.length - 1);
-      var slideElapsed = mainElapsed - si * slideDur;
-      var slideElapsed01 = Math.min(slideElapsed / slideDur, 1);
+      // Main: pick the slide based on section timings if available (perfect sync)
+      var si, slideElapsed, slideElapsed01, currentSlideDur;
+      if (sectionTimings) {
+        // Find which section's time window we're in
+        si = 0;
+        for (var k = 0; k < sectionTimings.length; k++) {
+          if (mainElapsed >= sectionTimings[k].start) si = k;
+          else break;
+        }
+        si = Math.min(si, slidesArr.length - 1);
+        currentSlideDur = sectionTimings[si].dur;
+        slideElapsed = mainElapsed - sectionTimings[si].start;
+        slideElapsed01 = Math.min(slideElapsed / currentSlideDur, 1);
+      } else {
+        si = Math.min(Math.floor(mainElapsed / slideDur), slidesArr.length - 1);
+        slideElapsed = mainElapsed - si * slideDur;
+        slideElapsed01 = Math.min(slideElapsed / slideDur, 1);
+        currentSlideDur = slideDur;
+      }
       var fadeIn = trans === 'fade' ? Math.min(slideElapsed / 0.4, 1) : 1;
       // Clear with brand bg before drawing slide
       ctx.fillStyle = '#0A0806'; ctx.fillRect(0, 0, W, H);
@@ -4659,8 +5018,49 @@ function __executeRenderPipeline(slidesArr) {
       ctx.fillStyle='rgba(255,255,255,0.05)'; ctx.fillRect(0, 0, W, pbH);
       ctx.fillStyle='rgba(232,160,32,0.35)'; ctx.fillRect(0, 0, W*mainProg, pbH+2);
       ctx.fillStyle='#E8A020'; ctx.fillRect(0, 0, W*mainProg, pbH);
+      // Burned captions (if enabled): show the current section's text
+      if (burnCaptions && slidesArr[si] && slidesArr[si].label) {
+        drawCaption(ctx, slidesArr[si].label, W, H);
+      }
       setRenderProgress(Math.round(progress*90)+5,'Rendering '+H+'p... '+Math.floor(elapsed)+'s / '+Math.floor(totalDur)+'s');
       requestAnimationFrame(frame);
+    }
+    // Caption drawer: word-wrapped, bottom band with semi-opaque background
+    function drawCaption(ctx, text, W, H) {
+      var fontPx = Math.round(H * 0.038);
+      ctx.font = '600 ' + fontPx + 'px DM Sans, Helvetica, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      var maxW = W * 0.85;
+      // Wrap into lines
+      var words = String(text || '').split(/\s+/), lines = [], cur = '';
+      for (var w = 0; w < words.length; w++) {
+        var test = cur ? (cur + ' ' + words[w]) : words[w];
+        if (ctx.measureText(test).width <= maxW) cur = test;
+        else { if (cur) lines.push(cur); cur = words[w]; }
+      }
+      if (cur) lines.push(cur);
+      lines = lines.slice(0, 2); // max 2 lines
+      var lineH = fontPx * 1.3;
+      var totalH = lines.length * lineH + 24;
+      var bandTop = H - totalH - Math.round(H * 0.08);
+      // Background band
+      ctx.fillStyle = 'rgba(10,8,6,0.78)';
+      ctx.fillRect(0, bandTop, W, totalH);
+      // Amber accent strip
+      ctx.fillStyle = '#E8A020';
+      ctx.fillRect(0, bandTop, W, Math.max(2, Math.round(H * 0.003)));
+      // Text
+      ctx.fillStyle = '#F7F2EA';
+      lines.forEach(function(line, i) {
+        var y = bandTop + 12 + i * lineH + lineH/2;
+        // Subtle text shadow for legibility
+        ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 4;
+        ctx.fillText(line, W / 2, y);
+        ctx.shadowBlur = 0;
+      });
+      ctx.textAlign = 'start';
+      ctx.textBaseline = 'alphabetic';
     }
     rec.onstop = function(){
       renderedBlob = new Blob(chunks, { type: mime });
