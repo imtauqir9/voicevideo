@@ -2766,6 +2766,195 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 
 <audio id="audioEl" style="display:none"></audio>
 
+<!-- ── FEEDBACK WIDGET ─────────────────────────────────────────── -->
+<style>
+  .fb-fab{position:fixed;right:22px;bottom:22px;z-index:200;width:54px;height:54px;border-radius:999px;background:#E8A020;color:#1A0F00;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 14px 32px -10px rgba(232,160,32,.7),0 1px 0 rgba(255,255,255,.18) inset;transition:transform .15s ease,background .15s ease}
+  .fb-fab:hover{background:#F5C842;transform:translateY(-2px) scale(1.04)}
+  .fb-fab:active{transform:translateY(0) scale(.98)}
+  .fb-overlay{position:fixed;inset:0;z-index:210;background:rgba(10,8,6,.7);backdrop-filter:saturate(160%) blur(8px);-webkit-backdrop-filter:saturate(160%) blur(8px);display:none;align-items:flex-end;justify-content:center;padding:20px}
+  .fb-overlay.show{display:flex;animation:fbFade .15s ease-out}
+  @keyframes fbFade{from{opacity:0}to{opacity:1}}
+  .fb-modal{width:100%;max-width:480px;background:#1A1410;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px;box-shadow:0 30px 60px -10px rgba(0,0,0,.6);animation:fbSlide .25s ease-out}
+  @keyframes fbSlide{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+  .fb-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:6px}
+  .fb-eyebrow{font-family:'DM Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.18em;color:#E8A020;text-transform:uppercase}
+  .fb-title{font-family:'Playfair Display',Georgia,serif;font-size:22px;font-weight:700;color:#F7F2EA;letter-spacing:-.01em;margin-top:2px}
+  .fb-title em{font-style:italic;color:#E8A020}
+  .fb-close{background:none;border:none;color:rgba(247,242,234,.4);font-size:24px;cursor:pointer;line-height:1;padding:0;margin-top:-4px}
+  .fb-close:hover{color:#F7F2EA}
+  .fb-desc{font-family:'DM Sans',system-ui,sans-serif;font-size:13px;color:rgba(247,242,234,.6);margin-bottom:18px;line-height:1.5}
+  .fb-row{margin-bottom:14px}
+  .fb-label{font-family:'DM Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.16em;color:rgba(247,242,234,.5);text-transform:uppercase;display:block;margin-bottom:8px}
+  .fb-rating{display:flex;gap:6px}
+  .fb-star{width:36px;height:36px;border:1px solid rgba(255,255,255,.1);border-radius:8px;background:rgba(255,255,255,.02);color:rgba(247,242,234,.4);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .12s ease}
+  .fb-star:hover,.fb-star.on{color:#E8A020;border-color:rgba(232,160,32,.5);background:rgba(232,160,32,.08)}
+  .fb-type-row{display:flex;flex-wrap:wrap;gap:6px}
+  .fb-pill{padding:7px 12px;border:1px solid rgba(255,255,255,.1);border-radius:999px;background:rgba(255,255,255,.02);color:rgba(247,242,234,.6);cursor:pointer;font-family:'DM Mono',ui-monospace,monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;transition:all .12s ease}
+  .fb-pill:hover{color:#F7F2EA;border-color:rgba(255,255,255,.25)}
+  .fb-pill.on{color:#E8A020;border-color:rgba(232,160,32,.5);background:rgba(232,160,32,.08)}
+  .fb-textarea,.fb-input{width:100%;padding:12px 14px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#F7F2EA;font-family:'DM Sans',system-ui,sans-serif;font-size:13px;line-height:1.5;outline:none;transition:border-color .12s,background .12s}
+  .fb-textarea{min-height:96px;resize:vertical}
+  .fb-textarea:focus,.fb-input:focus{border-color:rgba(232,160,32,.5);background:rgba(0,0,0,.4)}
+  .fb-submit-row{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:8px}
+  .fb-submit{padding:11px 22px;background:#E8A020;color:#1A0F00;border:none;border-radius:9px;font-family:'DM Sans',system-ui,sans-serif;font-weight:700;font-size:13px;letter-spacing:.04em;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:transform .12s ease,background .15s}
+  .fb-submit:hover{background:#F5C842;transform:translateY(-1px)}
+  .fb-submit:disabled{opacity:.6;cursor:not-allowed;transform:none;background:#E8A020}
+  .fb-foot-note{font-family:'DM Mono',ui-monospace,monospace;font-size:10px;color:rgba(247,242,234,.35);letter-spacing:.04em}
+  .fb-thanks{padding:32px 14px;text-align:center;font-family:'Playfair Display',Georgia,serif;font-size:18px;color:#F7F2EA}
+  .fb-thanks em{color:#E8A020;font-style:italic}
+  .fb-thanks-sub{font-family:'DM Sans',system-ui,sans-serif;font-size:13px;color:rgba(247,242,234,.5);margin-top:6px;letter-spacing:.01em}
+  .fb-error{margin-top:10px;padding:10px 12px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);border-radius:8px;color:#EF4444;font-family:'DM Sans',system-ui,sans-serif;font-size:12px;display:none}
+  .fb-error.show{display:block}
+  @media (max-width:520px){
+    .fb-fab{right:14px;bottom:14px;width:48px;height:48px;font-size:19px}
+    .fb-modal{padding:20px;border-radius:14px}
+  }
+</style>
+
+<button class="fb-fab" id="fbFab" onclick="fbOpen()" title="Send feedback">
+  <span aria-hidden="true">&#9998;</span>
+  <span style="position:absolute;left:-9999px">Send feedback</span>
+</button>
+
+<div class="fb-overlay" id="fbOverlay" onclick="if(event.target===this)fbClose()">
+  <div class="fb-modal" role="dialog" aria-labelledby="fbTitle">
+    <div id="fbFormWrap">
+      <div class="fb-head">
+        <div>
+          <div class="fb-eyebrow">FEEDBACK</div>
+          <div class="fb-title" id="fbTitle">Tell us what <em>you</em> think</div>
+        </div>
+        <button class="fb-close" onclick="fbClose()" aria-label="Close">&times;</button>
+      </div>
+      <div class="fb-desc">Goes straight into the backlog. Bug, idea, or just confused — all welcome.</div>
+
+      <div class="fb-row">
+        <label class="fb-label">How was it?</label>
+        <div class="fb-rating" id="fbRating">
+          <button type="button" class="fb-star" data-r="1" onclick="fbSetRating(1)">&#9733;</button>
+          <button type="button" class="fb-star" data-r="2" onclick="fbSetRating(2)">&#9733;</button>
+          <button type="button" class="fb-star" data-r="3" onclick="fbSetRating(3)" data-default="1">&#9733;</button>
+          <button type="button" class="fb-star" data-r="4" onclick="fbSetRating(4)">&#9733;</button>
+          <button type="button" class="fb-star" data-r="5" onclick="fbSetRating(5)">&#9733;</button>
+        </div>
+      </div>
+
+      <div class="fb-row">
+        <label class="fb-label">Type</label>
+        <div class="fb-type-row" id="fbTypeRow">
+          <button type="button" class="fb-pill" data-t="bug" onclick="fbSetType('bug')">Bug</button>
+          <button type="button" class="fb-pill on" data-t="idea" onclick="fbSetType('idea')">Idea</button>
+          <button type="button" class="fb-pill" data-t="praise" onclick="fbSetType('praise')">Praise</button>
+          <button type="button" class="fb-pill" data-t="confusion" onclick="fbSetType('confusion')">Confusion</button>
+          <button type="button" class="fb-pill" data-t="other" onclick="fbSetType('other')">Other</button>
+        </div>
+      </div>
+
+      <div class="fb-row">
+        <label class="fb-label" for="fbComment">Your message</label>
+        <textarea class="fb-textarea" id="fbComment" placeholder="What worked, what did not, what would make it better..." maxlength="2000"></textarea>
+      </div>
+
+      <div class="fb-row">
+        <label class="fb-label" for="fbEmail">Email (optional, only if you want a reply)</label>
+        <input class="fb-input" type="email" id="fbEmail" placeholder="you@example.com" maxlength="200">
+      </div>
+
+      <div class="fb-error" id="fbError"></div>
+
+      <div class="fb-submit-row">
+        <span class="fb-foot-note">Stored as a markdown entry in our public backlog.</span>
+        <button class="fb-submit" id="fbSubmitBtn" onclick="fbSubmit()">Send feedback &rarr;</button>
+      </div>
+    </div>
+
+    <div id="fbThanksWrap" style="display:none">
+      <div class="fb-thanks">Thanks &mdash; <em>got it</em>.</div>
+      <div class="fb-thanks-sub" style="text-align:center">Your note is in the backlog. We read everything.</div>
+      <div style="text-align:center;margin-top:18px"><button class="fb-submit" onclick="fbClose()">Close</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  var fbState = { rating: 3, type: 'idea' };
+  function fbOpen(){
+    var o = document.getElementById('fbOverlay');
+    if (o) o.classList.add('show');
+    document.body.style.overflow = 'hidden';
+    fbSetRating(3); fbSetType('idea');
+    document.getElementById('fbFormWrap').style.display = '';
+    document.getElementById('fbThanksWrap').style.display = 'none';
+    var c = document.getElementById('fbComment'); if (c) { c.value=''; setTimeout(function(){c.focus();},100); }
+    var e = document.getElementById('fbEmail'); if (e) e.value='';
+    var er = document.getElementById('fbError'); if (er) er.classList.remove('show');
+  }
+  function fbClose(){
+    var o = document.getElementById('fbOverlay');
+    if (o) o.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+  function fbSetRating(n){
+    fbState.rating = n;
+    document.querySelectorAll('#fbRating .fb-star').forEach(function(s){
+      var r = parseInt(s.getAttribute('data-r'),10);
+      s.classList.toggle('on', r <= n);
+    });
+  }
+  function fbSetType(t){
+    fbState.type = t;
+    document.querySelectorAll('#fbTypeRow .fb-pill').forEach(function(p){
+      p.classList.toggle('on', p.getAttribute('data-t') === t);
+    });
+  }
+  function fbShowError(msg){
+    var er = document.getElementById('fbError');
+    if (!er) return;
+    er.textContent = msg;
+    er.classList.add('show');
+  }
+  function fbSubmit(){
+    var commentEl = document.getElementById('fbComment');
+    var emailEl   = document.getElementById('fbEmail');
+    var btn       = document.getElementById('fbSubmitBtn');
+    var er        = document.getElementById('fbError');
+    if (er) er.classList.remove('show');
+    var comment = commentEl ? commentEl.value.trim() : '';
+    if (!comment) { fbShowError('Please write a short message before sending.'); return; }
+    if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+    fetch('/.netlify/functions/feedback', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        rating: fbState.rating,
+        type: fbState.type,
+        comment: comment,
+        email: emailEl ? emailEl.value.trim() : '',
+        source: window.location.href
+      })
+    }).then(function(r){
+      return r.json().catch(function(){return{};}).then(function(j){
+        if (!r.ok) throw new Error((j.error && j.error.message) || ('Server error ' + r.status));
+        return j;
+      });
+    }).then(function(){
+      document.getElementById('fbFormWrap').style.display = 'none';
+      document.getElementById('fbThanksWrap').style.display = 'block';
+    }).catch(function(err){
+      fbShowError(err.message || 'Could not send feedback. Try again in a moment.');
+    }).finally(function(){
+      if (btn) { btn.disabled = false; btn.textContent = 'Send feedback →'; }
+    });
+  }
+  // Close on Esc
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') {
+      var o = document.getElementById('fbOverlay');
+      if (o && o.classList.contains('show')) fbClose();
+    }
+  });
+</script>
+
 <script>
 
 

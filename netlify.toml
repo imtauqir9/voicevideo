@@ -18,6 +18,9 @@
 [functions."search"]
   timeout = 10
 
+[functions."feedback"]
+  timeout = 10
+
 # Allow the app to call the function endpoints with the right MIME types
 [[headers]]
   for = "/.netlify/functions/*"
