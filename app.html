@@ -2395,8 +2395,8 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
       <div style="display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap">
         <label style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(247,242,234,.55);letter-spacing:.12em;text-transform:uppercase;margin:0">Quality</label>
         <select id="videoQualityMain" onchange="document.getElementById('videoQuality') && (document.getElementById('videoQuality').value = this.value)" style="padding:8px 12px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#F7F2EA;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer">
-          <option value="720">Standard &middot; 720p</option>
-          <option value="1080" selected>HD &middot; 1080p (recommended)</option>
+          <option value="720" selected>Standard &middot; 720p (most reliable)</option>
+          <option value="1080">HD &middot; 1080p</option>
           <option value="1440">Premium &middot; 1440p</option>
           <option value="2160">Ultra &middot; 4K (slow)</option>
         </select>
@@ -2447,8 +2447,8 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
               <option value="slide">Slide</option>
             </select>
             <select class="wf-select" id="videoQuality" style="width:155px" title="Output resolution + bitrate">
-              <option value="720">Standard &middot; 720p</option>
-              <option value="1080" selected>HD &middot; 1080p (recommended)</option>
+              <option value="720" selected>Standard &middot; 720p (most reliable)</option>
+              <option value="1080">HD &middot; 1080p</option>
               <option value="1440">Premium &middot; 1440p</option>
               <option value="2160">Ultra &middot; 4K (slow)</option>
             </select>
@@ -5379,16 +5379,20 @@ function createVideo(){
   var qElMain=qs('videoQualityMain'); var qEl=qs('videoQuality');
   var qVal=(qElMain&&qElMain.value)||(qEl&&qEl.value)||'1080';
   var aspEl=qs('videoAspect'); var aspectVal=aspEl?aspEl.value:'16:9';
-  var bMap={'720':4000000,'1080':8000000,'1440':14000000,'2160':24000000};
+  // Conservative bitrates  high bitrates make the in-browser encoder crash the tab.
+  var bMap={'720':2500000,'1080':5000000,'1440':8000000,'2160':8000000};
   var qMap;
   if(aspectVal==='9:16'){ qMap={'720':[720,1280],'1080':[1080,1920],'1440':[1440,2560],'2160':[2160,3840]}; }
   else if(aspectVal==='1:1'){ qMap={'720':[720,720],'1080':[1080,1080],'1440':[1440,1440],'2160':[2160,2160]}; }
   else { qMap={'720':[1280,720],'1080':[1920,1080],'1440':[2560,1440],'2160':[3840,2160]}; }
-  var dims=qMap[qVal]||qMap['1080']; var BITRATE=bMap[qVal]||8000000;
+  var dims=qMap[qVal]||qMap['1080']; var BITRATE=bMap[qVal]||5000000;
   var FPS=25,W=dims[0],H=dims[1];
+  // In-browser MediaRecorder is crash-prone above ~1080p; cap pixel count while keeping aspect ratio.
+  var MAXPIX=1920*1080;
+  if(W*H>MAXPIX){ var sc=Math.sqrt(MAXPIX/(W*H)); W=Math.round(W*sc/2)*2; H=Math.round(H*sc/2)*2; if(BITRATE>5000000)BITRATE=5000000; }
   var S=H/720; // scale fonts/offsets relative to the original 720p layout
   var canvas=document.createElement('canvas'); canvas.width=W;canvas.height=H;
-  var ctx=canvas.getContext('2d');
+  var ctx=canvas.getContext('2d',{alpha:false});
   var bg=vidBg,acc=vidAcc,txt=vidTxt;
   var actx=new AudioContext();
   audioBlob.arrayBuffer().then(function(abuf){return actx.decodeAudioData(abuf);})
@@ -5396,8 +5400,9 @@ function createVideo(){
     var dest=actx.createMediaStreamDestination();
     var src=actx.createBufferSource(); src.buffer=decoded;src.connect(dest);
     var combined=new MediaStream(canvas.captureStream(FPS).getVideoTracks().concat(dest.stream.getAudioTracks()));
-    var mime=MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')?'video/webm;codecs=vp9,opus':'video/webm';
-    var chunks=[]; var rec=new MediaRecorder(combined,{mimeType:mime,videoBitsPerSecond:BITRATE,audioBitsPerSecond:128000});
+    var mime=MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')?'video/webm;codecs=vp8,opus':(MediaRecorder.isTypeSupported('video/webm')?'video/webm':'');
+    var recOpts=mime?{mimeType:mime,videoBitsPerSecond:BITRATE,audioBitsPerSecond:128000}:{videoBitsPerSecond:BITRATE};
+    var chunks=[]; var rec=new MediaRecorder(combined,recOpts);
     rec.ondataavailable=function(e){if(e.data.size>0)chunks.push(e.data);};
     var totalDur=decoded.duration,cardDur=totalDur/titleCards.length;
     if(!(totalDur>0)){ if(btn)btn.disabled=false; if(spin)spin.style.display='none'; if(label)label.textContent='▶︎ Create video from my content'; actx.close(); alert('The voiceover audio is empty or unreadable. Re-generate the voice in Step 2, then try the video again.'); return; }
