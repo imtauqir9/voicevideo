@@ -2090,6 +2090,9 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
     <button class="verify-run-btn" id="verifyRunBtn" onclick="runVerification()">
       Run 5-layer verification on current content &#9658;
     </button>
+    <button class="verify-run-btn" id="verifyReviseBtn" onclick="reviseFromVerification()" style="display:none;margin-top:10px;background:var(--amber);color:var(--ink)">
+      &#10003; Revise &amp; re-check &#9658;
+    </button>
     <div class="verify-score-bar" id="verifyScoreBar" style="display:none">
       <div class="verify-score-fill" id="verifyScoreFill"></div>
     </div>
@@ -3175,6 +3178,7 @@ var titleCards   = [];
 var renderedBlob = null;
 var videoColours = { bg:'#0C0C09', txt:'#FFFFFF', acc:'#E8A020' };
 var fetchedSourceContent = '';
+var lastVerify = null;
 var chatHistory  = [];
 var stepIds      = [];
 var stepIds2     = [];
@@ -3370,8 +3374,13 @@ function buildPrompt(type, topic, context, tone, length, audience) {
     story:   'Write engaging narrative content.\nStructure: Strong opening \u2192 Character/context \u2192 Rising tension \u2192 Climax \u2192 Resolution.'
   };
 
+  var quality = '\n\nQUALITY RULES (this content will be auto-graded on accuracy, balance, completeness, and hallucination \u2014 follow all):\n' +
+    '1. BALANCE: Present more than one perspective. Include strengths AND limitations or criticisms, with comparative context. Avoid one-sided or purely laudatory framing and loaded language.\n' +
+    '2. ACCURACY: Do NOT invent specific statistics, dates, records, or quotes. If unsure of an exact figure, speak generally or hedge ("around", "reportedly") instead of stating a precise number. Prefer stable, widely-known facts.\n' +
+    '3. COMPLETENESS: Cover the main aspects and finish with a proper conclusion. Do NOT stop mid-sentence; if near the length limit, wrap up cleanly.\n' +
+    '4. TONE: Match the requested tone and audience.';
   return 'TOPIC: "' + topic + '"\n\nTone: ' + tone + '. Audience: ' + audience + '. Target: ' + words + ' words.' +
-    ctx + src + '\n\n' + (formats[type] || formats.essay) + '\n\nWrite the complete document now.';
+    ctx + src + '\n\n' + (formats[type] || formats.essay) + quality + '\n\nWrite the complete document now.';
 }
 
 function buildVoicePrompt(content, topic, type, tone, length) {
@@ -5964,6 +5973,7 @@ async function runVerification() {
   });
 
   var scores = [];
+  var verifyFindings = [];
   var secondScores = [];
   var agreementCount = 0;
   var disputeCount = 0;
@@ -5973,7 +5983,7 @@ async function runVerification() {
   var csProvider = csSelEl ? csSelEl.value : '';
   var csKey = csKeyEl ? csKeyEl.value.trim() : '';
   var csMeta = csProvider ? PROVIDER_META[csProvider] : null;
-  var contentPreview = generatedContent.substring(0, 2000);
+  var contentPreview = generatedContent.substring(0, 7000);
 
   for (var i = 0; i < VERIFY_LAYERS.length; i++) {
     var layer = VERIFY_LAYERS[i];
@@ -6025,6 +6035,7 @@ async function runVerification() {
       if (findEl) findEl.textContent = finding;
       if (detEl)  detEl.textContent = detail || 'No further detail returned.';
       if (tglEl)  tglEl.style.display = detail ? 'inline-flex' : 'none';
+      verifyFindings.push({ id: layer.id, name: layer.name, score: score, finding: finding, detail: detail });
 
       // Cross-check with the second provider, if configured
       if (csProvider && csKey && csMeta) {
@@ -6065,6 +6076,7 @@ async function runVerification() {
       if (layerEl) layerEl.className = 'verify-layer fail';
       if (resEl) resEl.textContent = 'Error: ' + err.message;
       scores.push(0);
+      verifyFindings.push({ id: layer.id, name: layer.name, score: 0, finding: 'Error during analysis', detail: '' });
       setDonut(layer.id, 0, false);
       var findEl2 = document.getElementById('vlg-finding-'+layer.id);
       if (findEl2) findEl2.textContent = 'Error: ' + err.message;
@@ -6088,6 +6100,9 @@ async function runVerification() {
     else breakdown.fail++;
   });
   setTrustGauge(avgScore, breakdown);
+  lastVerify = { avg: avgScore, layers: verifyFindings };
+  var __rev = qs('verifyReviseBtn');
+  if (__rev) __rev.style.display = (avgScore < 75 || breakdown.fail > 0 || breakdown.warn > 0) ? 'block' : 'none';
   // Headline overrides for the cross-check case
   if (csProvider && csMeta) {
     var head = document.getElementById('trustHeadline');
@@ -6116,6 +6131,43 @@ async function runVerification() {
   if (scoreLabel) scoreLabel.style.display = 'none';
   if (scoreVal) scoreVal.textContent = avgScore + '/100';
   if (runBtn) { runBtn.disabled = false; runBtn.textContent = 'Run 5-layer verification on current content \u25B6'; }
+}
+
+async function reviseFromVerification() {
+  if (!generatedContent) { alert('Generate content first.'); return; }
+  if (!lastVerify || !lastVerify.layers || !lastVerify.layers.length) { alert('Run verification first, then revise.'); return; }
+  var issues = lastVerify.layers.filter(function(l){ return l.score < 75; });
+  if (!issues.length) { alert('All layers already passed \u2014 nothing to revise.'); return; }
+  var ck = qs('claudeKey'); var apiKey = ck ? ck.value.trim() : '';
+  var useDemo = !apiKey; if (useDemo) apiKey = '__DEMO__';
+  var revBtn = qs('verifyReviseBtn');
+  if (revBtn) { revBtn.disabled = true; revBtn.textContent = 'Revising...'; }
+  var t = qs('topic'); var topicVal = t ? t.value.trim() : '';
+  var issueText = issues.map(function(l){ return '- ' + l.name + ' (scored ' + l.score + '/100): ' + l.finding + (l.detail ? ' [' + l.detail + ']' : ''); }).join('\n');
+  var prompt = 'You are revising a ' + selectedType + ' about "' + topicVal + '". An automated quality review flagged these issues:\n\n' +
+    issueText + '\n\n' +
+    'Rewrite the ENTIRE piece to fix every issue:\n' +
+    '- Add balance: include limitations, criticisms, and comparative context; remove one-sided or purely positive framing and loaded language.\n' +
+    '- Fix accuracy/hallucination: remove or hedge any specific statistics, dates, records, or quotes you are not certain about; prefer stable, widely-known facts.\n' +
+    '- Improve completeness: cover missing aspects and end with a proper conclusion. Do not stop mid-sentence.\n' +
+    '- Keep the same overall format, structure, and approximate length, and keep ## headings where used.\n\n' +
+    'CURRENT CONTENT:\n' + generatedContent.substring(0, 6000) + '\n\n' +
+    'Output ONLY the revised content, nothing else.';
+  try {
+    var r = await askClaude(apiKey, prompt, useDemo ? 2048 : 4000);
+    var revised = (r && r.content && r.content[0] && r.content[0].text) ? r.content[0].text.trim() : '';
+    if (!revised) throw new Error('Empty revision returned');
+    generatedContent = revised;
+    if (typeof renderContent === 'function') renderContent(generatedContent);
+    if (typeof buildTitleCardsData === 'function') buildTitleCardsData();
+    if (typeof refreshTitleCards === 'function') refreshTitleCards();
+    if (typeof saveState === 'function') saveState();
+    if (revBtn) { revBtn.disabled = false; revBtn.textContent = '\u2713 Revise & re-check \u25B6'; }
+    await runVerification();
+  } catch (err) {
+    alert('Revise failed: ' + (err && err.message ? err.message : err));
+    if (revBtn) { revBtn.disabled = false; revBtn.textContent = '\u2713 Revise & re-check \u25B6'; }
+  }
 }
 
 // Hook into existing run() to auto-track and auto-verify

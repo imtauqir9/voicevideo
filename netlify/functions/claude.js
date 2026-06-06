@@ -109,7 +109,7 @@ exports.handler = async (event) => {
     let payload = {};
     try { payload = JSON.parse(event.body || '{}'); } catch (e) { payload = {}; }
     payload.model = process.env.DEMO_MODEL || 'claude-haiku-4-5-20251001';
-    if (!payload.max_tokens || payload.max_tokens > 1500) payload.max_tokens = 1500;
+    if (!payload.max_tokens || payload.max_tokens > 2048) payload.max_tokens = 2048;
     payload.stream = false;
 
     const ctrl = new AbortController();
