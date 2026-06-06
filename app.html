@@ -4098,7 +4098,7 @@ function runVoiceVideo() {
     if (err) { alert('Error: ' + err.message); return; }
     if (audioBlob) {
       setupAudio(audioBlob);
-      var vn = vidEl ? vidEl.options[vidEl.selectedIndex].text : 'Custom voice';
+      var vn = (vidEl && vidEl.selectedIndex >= 0 && vidEl.options[vidEl.selectedIndex]) ? vidEl.options[vidEl.selectedIndex].text : 'Custom voice';
       setText('audioVoiceName', vn);
       if (ac) ac.style.display = 'block';
       if (adr) adr.style.display = 'block';
@@ -4276,7 +4276,7 @@ function updateFfmpegCmd(dur){
 function copyCmd(id){
   var el=qs(id); if(!el) return;
   navigator.clipboard.writeText(el.textContent).then(function(){
-    null.textContent='Copied!';setTimeout(function(){null.textContent='Copy';},1500);
+    /* clipboard write succeeded */
   });
 }
 
@@ -5364,6 +5364,7 @@ function renderTitleCardPreviews(){
 }
 
 function createVideo(){
+  try {
   if(!generatedContent){alert('Generate your content first (Step 1 above).');return;}
   if(!audioBlob){alert('Generate your voice first (Step 2 above).\n\nThe video needs the voiceover audio.');return;}
   buildTitleCardsData();
@@ -5374,7 +5375,18 @@ function createVideo(){
   if(resEl)resEl.style.display='none';
   var fontMap={sans:'DM Sans,sans-serif',serif:'Georgia,Times New Roman,serif',mono:'DM Mono,Courier New,monospace',display:'Impact,Arial Black,sans-serif'};
   var ffEl=qs('vidFont'); var ff=fontMap[ffEl?ffEl.value:'sans']||fontMap.sans;
-  var FPS=25,W=1280,H=720;
+  // Honor the resolution + aspect-ratio pickers (previously hardcoded to 1280x720)
+  var qElMain=qs('videoQualityMain'); var qEl=qs('videoQuality');
+  var qVal=(qElMain&&qElMain.value)||(qEl&&qEl.value)||'1080';
+  var aspEl=qs('videoAspect'); var aspectVal=aspEl?aspEl.value:'16:9';
+  var bMap={'720':4000000,'1080':8000000,'1440':14000000,'2160':24000000};
+  var qMap;
+  if(aspectVal==='9:16'){ qMap={'720':[720,1280],'1080':[1080,1920],'1440':[1440,2560],'2160':[2160,3840]}; }
+  else if(aspectVal==='1:1'){ qMap={'720':[720,720],'1080':[1080,1080],'1440':[1440,1440],'2160':[2160,2160]}; }
+  else { qMap={'720':[1280,720],'1080':[1920,1080],'1440':[2560,1440],'2160':[3840,2160]}; }
+  var dims=qMap[qVal]||qMap['1080']; var BITRATE=bMap[qVal]||8000000;
+  var FPS=25,W=dims[0],H=dims[1];
+  var S=H/720; // scale fonts/offsets relative to the original 720p layout
   var canvas=document.createElement('canvas'); canvas.width=W;canvas.height=H;
   var ctx=canvas.getContext('2d');
   var bg=vidBg,acc=vidAcc,txt=vidTxt;
@@ -5385,19 +5397,21 @@ function createVideo(){
     var src=actx.createBufferSource(); src.buffer=decoded;src.connect(dest);
     var combined=new MediaStream(canvas.captureStream(FPS).getVideoTracks().concat(dest.stream.getAudioTracks()));
     var mime=MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')?'video/webm;codecs=vp9,opus':'video/webm';
-    var chunks=[]; var rec=new MediaRecorder(combined,{mimeType:mime,videoBitsPerSecond:3000000});
+    var chunks=[]; var rec=new MediaRecorder(combined,{mimeType:mime,videoBitsPerSecond:BITRATE,audioBitsPerSecond:128000});
     rec.ondataavailable=function(e){if(e.data.size>0)chunks.push(e.data);};
     var totalDur=decoded.duration,cardDur=totalDur/titleCards.length;
+    if(!(totalDur>0)){ if(btn)btn.disabled=false; if(spin)spin.style.display='none'; if(label)label.textContent='▶︎ Create video from my content'; actx.close(); alert('The voiceover audio is empty or unreadable. Re-generate the voice in Step 2, then try the video again.'); return; }
     var startTime=null,stopped=false;
+    var pad=Math.round(80*S);
     function wrapText(c,text,x,y,maxW,lineH){var words=(text||'').split(' '),line='',ly=y;words.forEach(function(w){var test=line+(line?' ':'')+w;if(c.measureText(test).width>maxW&&line){c.fillText(line,x,ly);ly+=lineH;line=w;}else line=test;});if(line)c.fillText(line,x,ly);}
     function drawCard(card,fadeIn){
       ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
       if(fadeIn<1){ctx.save();ctx.fillStyle=bg;ctx.globalAlpha=1-fadeIn;ctx.fillRect(0,0,W,H);ctx.restore();}
-      ctx.fillStyle=acc;ctx.fillRect(0,0,6,H);
+      ctx.fillStyle=acc;ctx.fillRect(0,0,Math.round(6*S),H);
       ctx.fillStyle=txt;
-      if(card.isTitle){ctx.textAlign='center';ctx.font='bold 64px '+ff;wrapText(ctx,card.heading||'',W/2,H/2-30,W-160,80);ctx.font='22px '+ff;ctx.fillStyle=acc;ctx.fillText('VoiceVideo',W/2,H/2+70);}
-      else{ctx.textAlign='left';var hl=(card.heading||'').length;var fs=hl>50?40:hl>30?48:56;ctx.font='bold '+fs+'px '+ff;ctx.fillStyle=txt;wrapText(ctx,card.heading||'',80,200,W-180,fs*1.25);if(card.body){ctx.font='26px '+ff;ctx.globalAlpha=.75;wrapText(ctx,card.body,80,340,W-180,38);ctx.globalAlpha=1;}}
-      ctx.fillStyle=acc;ctx.fillRect(0,H-4,W,4);
+      if(card.isTitle){ctx.textAlign='center';ctx.font='bold '+Math.round(64*S)+'px '+ff;wrapText(ctx,card.heading||'',W/2,H/2-Math.round(30*S),W-Math.round(160*S),Math.round(80*S));ctx.font=Math.round(22*S)+'px '+ff;ctx.fillStyle=acc;ctx.fillText('VoiceVideo',W/2,H/2+Math.round(70*S));}
+      else{ctx.textAlign='left';var hl=(card.heading||'').length;var fs=Math.round((hl>50?40:hl>30?48:56)*S);ctx.font='bold '+fs+'px '+ff;ctx.fillStyle=txt;wrapText(ctx,card.heading||'',pad,Math.round(200*S),W-Math.round(180*S),fs*1.25);if(card.body){ctx.font=Math.round(26*S)+'px '+ff;ctx.globalAlpha=.75;wrapText(ctx,card.body,pad,Math.round(340*S),W-Math.round(180*S),Math.round(38*S));ctx.globalAlpha=1;}}
+      ctx.fillStyle=acc;ctx.fillRect(0,H-Math.round(4*S),W,Math.round(4*S));
     }
     function renderFrame(now){
       if(stopped)return; if(!startTime)startTime=now;
@@ -5405,12 +5419,12 @@ function createVideo(){
       var ci=Math.min(Math.floor(elapsed/cardDur),titleCards.length-1);
       var fadeIn=Math.min((elapsed-ci*cardDur)/0.35,1);
       drawCard(titleCards[ci],fadeIn);
-      ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(0,H-4,W,4);
-      ctx.fillStyle=acc;ctx.fillRect(0,H-4,W*progress,4);
+      ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(0,H-Math.round(4*S),W,Math.round(4*S));
+      ctx.fillStyle=acc;ctx.fillRect(0,H-Math.round(4*S),W*progress,Math.round(4*S));
       var pct=Math.round(progress*90)+5;
       var ep=qs('videoRenderProgress');if(ep)ep.style.display='block';
       var vb=qs('vrpBar');if(vb)vb.style.width=pct+'%';
-      setText('vrpLabel','Rendering '+Math.floor(elapsed)+'s / '+Math.floor(totalDur)+'s ('+pct+'%)');
+      setText('vrpLabel','Rendering '+H+'p '+Math.floor(elapsed)+'s / '+Math.floor(totalDur)+'s ('+pct+'%)');
       if(elapsed>=totalDur){stopped=true;rec.stop();return;}
       requestAnimationFrame(renderFrame);
     }
@@ -5420,7 +5434,7 @@ function createVideo(){
       var vb=qs('vrpBar');if(vb)vb.style.width='100%';
       setText('vrpLabel','Done! '+mb+' MB ready');
       if(resEl)resEl.style.display='block';
-      setText('vidResultMeta','WebM · '+mb+' MB · '+Math.floor(totalDur)+'s');
+      setText('vidResultMeta','WebM · '+W+'×'+H+' · '+mb+' MB · '+Math.floor(totalDur)+'s');
       var yi=qs('ytVideoIcon'),yt=qs('ytVideoStatusText');
       if(yi)yi.textContent='✅';
       if(yt){yt.textContent='Video ready — click Upload to YouTube below';yt.className='yas-text ready';}
@@ -5430,10 +5444,17 @@ function createVideo(){
     };
     rec.start(100);src.start(0);requestAnimationFrame(renderFrame);
   }).catch(function(err){
-    alert('Video error: '+err.message);
+    alert('Video error: '+(err&&err.message?err.message:err));
     if(btn)btn.disabled=false;if(spin)spin.style.display='none';
     if(label)label.textContent='▶︎ Create video from my content';
   });
+  } catch(err){
+    console.error('createVideo failed to start:',err);
+    alert('The video could not start: '+(err&&err.message?err.message:err));
+    var b=qs('createVideoBtn'); if(b)b.disabled=false;
+    var sp=qs('videoSpinner'); if(sp)sp.style.display='none';
+    var lb=qs('createVideoLabel'); if(lb)lb.textContent='▶︎ Create video from my content';
+  }
 }
 
 function previewRenderedVideo(){
