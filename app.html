@@ -1662,7 +1662,7 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
     <div class="app-page-meta">
       <div class="app-meta-chips">
         <span class="app-meta-chip"><span class="dot" style="background:#5B8FE8"></span>Claude Sonnet 4</span>
-        <span class="app-meta-chip"><span class="dot" style="background:#00D4A0"></span>ElevenLabs Turbo v2</span>
+        <span class="app-meta-chip"><span class="dot" style="background:#00D4A0"></span>ElevenLabs Multilingual v2</span>
         <span class="app-meta-chip"><span class="dot" style="background:#E8A020"></span>Live</span>
       </div>
     </div>
@@ -2186,7 +2186,7 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
         </div>
       </div>
       <div class="om-tool-note" id="omToolNote">
-        <span id="omToolText">&#127897;&#65039; ElevenLabs Turbo v2 &#8212; your custom voice (kmiDQH3kczbRzoifN5Qv)</span>
+        <span id="omToolText">&#127897;&#65039; ElevenLabs Multilingual v2 &#8212; your custom voice (kmiDQH3kczbRzoifN5Qv)</span>
       </div>
     </div>
 
@@ -2797,7 +2797,7 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 </div>
 
 <div class="footer">
-  VoiceVideo &#183; Claude Sonnet 4 + ElevenLabs Turbo v2 + MediaRecorder API<br>
+  VoiceVideo &#183; Claude Sonnet 4 + ElevenLabs Multilingual v2 + MediaRecorder API<br>
   Frontend: HTML/CSS/JS (no framework) &#183; Backend: Claude API + ElevenLabs API + YouTube API v3 + GitHub API<br>
   Keys never leave your browser &#183; Video rendered locally by MediaRecorder
 </div>
@@ -3221,7 +3221,7 @@ function setOutputMode(mode) {
   var vs = qs('voiceSettings');
   if (vs) vs.style.display = show_voice ? 'block' : 'none';
   var notes = {
-    voice: '\uD83C\uDF99\uFE0F ElevenLabs Turbo v2 — your custom voice',
+    voice: '\uD83C\uDF99\uFE0F ElevenLabs Multilingual v2 — your custom voice',
     video: '\uD83C\uDFAC MediaRecorder API (Chrome built-in) — no ElevenLabs key needed',
     both:  '\uD83D\uDE80 ElevenLabs voices it \u2192 MediaRecorder renders video \u2192 YouTube-ready'
   };
@@ -3387,14 +3387,14 @@ function buildVoicePrompt(content, topic, type, tone, length) {
   var wm = {short:'200-300', medium:'400-600', long:'800-1100', comprehensive:'1500-2000'};
   return 'Convert this ' + type + ' about "' + topic + '" into a natural voiceover script.\n\n' +
     'CONTENT:\n' + content.substring(0, 3000) + '\n\n' +
-    'RULES: Spoken words only \u2014 no markdown, no headers, no bullets.\n' +
-    'Natural conversational flow. ' + tone + ' delivery. Target: ' + (wm[length]||'400-600') + ' words.\n\n' +
+    'RULES: Spoken words only \u2014 no markdown, no headers, no bullets, no lists.\n' +
+    'Write the way people actually speak: use contractions, vary sentence length, and use natural punctuation (commas, dashes, ellipses, question marks) to control pacing and emphasis. Avoid stiff, list-like phrasing. ' + tone + ' delivery. Target: ' + (wm[length]||'400-600') + ' words.\n\n' +
     'Write the complete voiceover script now.';
 }
 
 // ── ElevenLabs TTS ────────────────────────────────────────────────
 function voiceText(elKey, text, voiceId, stability) {
-  var MAX = 4800;
+  var MAX = 9000;
   var chunks = [];
   var rem = text.trim();
   while (rem.length > 0) {
@@ -3427,8 +3427,8 @@ function voiceText(elKey, text, voiceId, stability) {
       headers: elHeaders,
       body: JSON.stringify({
         text: chunks[idx],
-        model_id: 'eleven_turbo_v2',
-        voice_settings: {stability: parseFloat(stability)||0.45, similarity_boost:0.82, style:0.12, use_speaker_boost:true},
+        model_id: 'eleven_multilingual_v2',
+        voice_settings: {stability: parseFloat(stability)||0.5, similarity_boost:0.75, style:0.3, use_speaker_boost:true},
         output_format: 'mp3_44100_192'
       })
     }).then(function(r) {
@@ -3765,16 +3765,40 @@ function loadJSZip() {
 }
 
 // ── PowerPoint ────────────────────────────────────────────────────
-function downloadPPT() {
+async function downloadPPT() {
   if (!generatedContent) { alert('Generate content first'); return; }
-  if (window.PptxGenJS) { buildPPT(); return; }
+  // Ask Claude to rewrite content into slide-optimized bullets + notes + takeaway.
+  // Falls back to the built-in parser if the call fails or returns invalid JSON.
+  var spec = null;
+  try { spec = await generateSlideSpec(); } catch (e) { spec = null; }
+  function go(){ buildPPT(spec); }
+  if (window.PptxGenJS) { go(); return; }
   var s = document.createElement('script');
   s.src = 'https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js';
-  s.onload = buildPPT;
+  s.onload = go;
   s.onerror = function(){ alert('PptxGenJS load failed — check internet connection'); };
   document.head.appendChild(s);
 }
-function buildPPT() {
+function generateSlideSpec() {
+  var ck = qs('claudeKey'); var apiKey = ck ? ck.value.trim() : '';
+  if (!apiKey) apiKey = '__DEMO__';
+  var t = qs('topic'); var topicVal = t ? t.value.trim() : '';
+  var prompt = 'Turn the following ' + selectedType + ' into a professional slide-deck outline.\n' +
+    'Return ONLY valid JSON, no markdown fences, shaped EXACTLY like:\n' +
+    '{"slides":[{"title":"Slide title","bullets":["short punchy point"],"notes":"1-2 sentence speaker note"}],"takeaway":"single most important insight, one sentence"}\n' +
+    'Rules: 4 to 10 slides. 3 to 5 bullets per slide. Each bullet under 14 words, punchy, NOT copied verbatim from the text. Notes are what the presenter says aloud. Stay faithful to the content.\n\n' +
+    'TOPIC: "' + topicVal + '"\n\nCONTENT:\n' + generatedContent.substring(0, 6000);
+  return askClaude(apiKey, prompt, 2000).then(function(r){
+    var txt = (r && r.content && r.content[0] && r.content[0].text) ? r.content[0].text : '';
+    txt = txt.replace(/```json/gi,'').replace(/```/g,'').trim();
+    var a = txt.indexOf('{'), b = txt.lastIndexOf('}');
+    if (a >= 0 && b > a) txt = txt.slice(a, b + 1);
+    var obj = JSON.parse(txt);
+    if (!obj || !obj.slides || !obj.slides.length) throw new Error('empty spec');
+    return obj;
+  });
+}
+function buildPPT(spec) {
   var pres = new PptxGenJS();
   var t = qs('topic'); var topic = t ? t.value.trim() : 'VoiceVideo';
   var tl = {essay:'Essay',report:'Report',lesson:'Lesson',script:'Script',debate:'Debate',story:'Story'}[selectedType]||'Presentation';
@@ -3814,23 +3838,32 @@ function buildPPT() {
   s1.addText(date,{x:0.8,y:5.6,w:11,h:0.6,fontSize:24,color:AMBER,fontFace:'Georgia',italic:true,margin:0});
   // Meta strip bottom
   s1.addShape(pres.shapes.RECTANGLE,{x:0.8,y:H-1.4,w:W-1.6,h:0.04,fill:{color:AMBER},line:{color:AMBER}});
-  var meta=[['TYPE',tl],['WORDS',wc.toLocaleString()],['READ',Math.max(1,Math.round(wc/200))+' MIN'],['GENERATOR','CLAUDE SONNET 4']];
+  var meta=[['TYPE',tl],['WORDS',wc.toLocaleString()],['READ',Math.max(1,Math.round(wc/200))+' MIN'],['GENERATOR','CLAUDE']];
   meta.forEach(function(m,i){
     var x=0.8+i*((W-1.6)/4);
     s1.addText(m[0],{x:x,y:H-1.25,w:3,h:0.25,fontFace:'Consolas',fontSize:9,color:TEXT3,charSpacing:5,margin:0});
     s1.addText(m[1],{x:x,y:H-0.95,w:3,h:0.35,fontFace:'Georgia',fontSize:16,color:TEXT,bold:true,margin:0});
   });
-  var lines=generatedContent.split('\n').filter(function(l){return l.trim();});
-  var sections=[]; var cur=null;
-  lines.forEach(function(line){
-    var t2=line.trim();
-    if(t2.startsWith('## ')||t2.startsWith('# ')){if(cur)sections.push(cur);cur={heading:t2.replace(/^#+\s*/,''),bullets:[]};}
-    else if(t2.startsWith('### ')&&cur) cur.bullets.push({text:t2.replace(/^#+\s*/,''),bold:true});
-    else if((t2.startsWith('- ')||t2.startsWith('* '))&&cur) cur.bullets.push({text:t2.replace(/^[-*]\s*/,''),bold:false});
-    else if(t2&&cur&&cur.bullets.length<8){var ws=t2.split(' ');for(var i=0;i<ws.length;i+=20)cur.bullets.push({text:ws.slice(i,i+20).join(' '),bold:false});}
-  });
-  if(cur)sections.push(cur);
-  if(!sections.length){var chunks=[];for(var i=0;i<lines.length;i+=5)chunks.push(lines.slice(i,i+5));chunks.forEach(function(c,i){sections.push({heading:'Part '+(i+1),bullets:c.map(function(t2){return{text:t2.replace(/\*\*/g,''),bold:false};})});});}
+  var sections=[]; var takeawayText=null;
+  if (spec && spec.slides && spec.slides.length) {
+    sections = spec.slides.map(function(sl){
+      return { heading: sl.title || '', notes: sl.notes || '',
+        bullets: (sl.bullets || []).map(function(b){ return { text: String(b), bold:false }; }) };
+    });
+    takeawayText = spec.takeaway || null;
+  } else {
+    var lines=generatedContent.split('\n').filter(function(l){return l.trim();});
+    var cur=null;
+    lines.forEach(function(line){
+      var t2=line.trim();
+      if(t2.startsWith('## ')||t2.startsWith('# ')){if(cur)sections.push(cur);cur={heading:t2.replace(/^#+\s*/,''),bullets:[]};}
+      else if(t2.startsWith('### ')&&cur) cur.bullets.push({text:t2.replace(/^#+\s*/,''),bold:true});
+      else if((t2.startsWith('- ')||t2.startsWith('* '))&&cur) cur.bullets.push({text:t2.replace(/^[-*]\s*/,''),bold:false});
+      else if(t2&&cur&&cur.bullets.length<8){var ws=t2.split(' ');for(var i=0;i<ws.length;i+=20)cur.bullets.push({text:ws.slice(i,i+20).join(' '),bold:false});}
+    });
+    if(cur)sections.push(cur);
+    if(!sections.length){var chunks=[];for(var i=0;i<lines.length;i+=5)chunks.push(lines.slice(i,i+5));chunks.forEach(function(c,i){sections.push({heading:'Part '+(i+1),bullets:c.map(function(t2){return{text:t2.replace(/\*\*/g,''),bold:false};})});});}
+  }
   // \u2500\u2500 AGENDA SLIDE (if there are 3+ sections) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
   if (sections.length >= 3) {
     var sA = pres.addSlide(); sA.background={color:INK};
@@ -3880,6 +3913,7 @@ function buildPPT() {
     }
     // Side eyebrow tag
     s.addText(tl.toUpperCase(),{x:W-2.4,y:0.85,w:1.8,h:0.25,fontFace:'Consolas',fontSize:9,color:TEXT3,charSpacing:4,align:'right',margin:0});
+    if (sec.notes) { try { s.addNotes(escClean(sec.notes)); } catch(e){} }
     footer(s, i + (sections.length >= 3 ? 3 : 2));
   });
 
@@ -3890,7 +3924,8 @@ function buildPPT() {
     // Big amber quote mark
     sK.addText('"',{x:0.8,y:1.5,w:1.5,h:2.5,fontFace:'Georgia',fontSize:200,color:AMBER,bold:true,margin:0});
     // The takeaway
-    sK.addText('Two AI providers cross-check every layer. Agreement strengthens trust. Disagreement is flagged for human review.',{x:2.2,y:2.4,w:W-3.0,h:3.0,fontFace:'Georgia',fontSize:30,color:TEXT,italic:true,margin:0,lineSpacingMultiple:1.3,valign:'middle'});
+    var takeaway = takeawayText || (sections[0] && sections[0].bullets[0] && sections[0].bullets[0].text) || ('The essentials of ' + escClean(topic) + '.');
+    sK.addText(escClean(takeaway),{x:2.2,y:2.4,w:W-3.0,h:3.0,fontFace:'Georgia',fontSize:30,color:TEXT,italic:true,margin:0,lineSpacingMultiple:1.3,valign:'middle'});
     sK.addShape(pres.shapes.RECTANGLE,{x:2.2,y:5.5,w:1.2,h:0.04,fill:{color:AMBER},line:{color:AMBER}});
     sK.addText('FROM  '+escClean(topic).substring(0,80),{x:2.2,y:5.65,w:W-2.8,h:0.4,fontFace:'Consolas',fontSize:11,color:TEXT3,charSpacing:5,margin:0});
     footer(sK, sections.length + (sections.length >= 3 ? 3 : 2));
