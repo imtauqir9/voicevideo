@@ -11,8 +11,17 @@
     },
     "2026-06-06": {
       "page_view": 1,
-      "page_view:page=app": 1
+      "page_view:page=app": 1,
+      "generation_started": 1,
+      "generation_started:type=report": 1,
+      "generation_started:length=medium": 1,
+      "generation_started:tone=engagingandaccessible": 1,
+      "generation_completed": 1,
+      "generation_completed:type=report": 1,
+      "generation_completed:length=medium": 1,
+      "document_downloaded": 1,
+      "document_downloaded:format=pptx": 1
     }
   },
-  "updatedAt": "2026-06-06T04:23:37.316Z"
+  "updatedAt": "2026-06-06T04:25:57.122Z"
 }
