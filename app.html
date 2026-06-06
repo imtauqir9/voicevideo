@@ -3343,6 +3343,8 @@ function askClaude(apiKey, prompt, maxTokens) {
         if (data.error && data.error.type === 'demo_limit') throw new Error(msg);
         if (resp.status === 401) throw new Error(useDemo ? 'Demo server misconfigured (key missing).' : 'Claude API key invalid — check console.anthropic.com');
         if (resp.status === 429) throw new Error(useDemo ? msg : 'Rate limit — wait 30 seconds and retry');
+        if (data.error && data.error.type === 'demo_timeout') throw new Error(msg);
+        if (resp.status === 504 || resp.status === 502 || resp.status === 503) throw new Error(useDemo ? (msg || 'The free demo timed out while generating. Try a shorter length, or add your own Claude API key (top of the page) for full speed.') : 'The Claude request timed out. Try again, or choose a shorter length.');
         throw new Error('Claude API ' + resp.status + ': ' + msg);
       });
     }

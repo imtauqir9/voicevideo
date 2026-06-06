@@ -100,19 +100,36 @@ exports.handler = async (event) => {
     };
   }
 
-  // Forward request to Anthropic
+  // Forward request to Anthropic.
+  // The demo must finish inside the function timeout (Netlify caps at 26s),
+  // so we force a fast model and cap output to avoid 504 gateway timeouts.
+  // Visitors who enter their own API key bypass this proxy entirely, so they
+  // keep full model choice and length.
   try {
-    const body = event.body || '{}';
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body,
-    });
-    const text = await resp.text();
+    let payload = {};
+    try { payload = JSON.parse(event.body || '{}'); } catch (e) { payload = {}; }
+    payload.model = process.env.DEMO_MODEL || 'claude-haiku-4-5-20251001';
+    if (!payload.max_tokens || payload.max_tokens > 1500) payload.max_tokens = 1500;
+    payload.stream = false;
+
+    const ctrl = new AbortController();
+    const timer = setTimeout(function () { ctrl.abort(); }, 23000);
+    let resp, text;
+    try {
+      resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify(payload),
+        signal: ctrl.signal,
+      });
+      text = await resp.text();
+    } finally {
+      clearTimeout(timer);
+    }
 
     // Only count successful generations against the demo quota
     if (resp.ok) {
@@ -132,10 +149,18 @@ exports.handler = async (event) => {
       body: text,
     };
   } catch (err) {
+    const aborted = err && (err.name === 'AbortError');
     return {
-      statusCode: 502,
+      statusCode: aborted ? 504 : 502,
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-      body: JSON.stringify({ error: { message: 'Proxy error: ' + (err && err.message ? err.message : String(err)) } }),
+      body: JSON.stringify({
+        error: {
+          type: aborted ? 'demo_timeout' : 'proxy_error',
+          message: aborted
+            ? 'The free demo timed out while generating. Try a shorter length, or add your own Claude API key (top of the page) for full speed and longer outputs.'
+            : 'Proxy error: ' + (err && err.message ? err.message : String(err)),
+        },
+      }),
     };
   }
 };
