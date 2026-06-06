@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Generate Tutorial Audio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0A0806; --bg-2:#1A1410; --border:rgba(255,255,255,0.08);
+  --text:#F7F2EA; --text-2:rgba(247,242,234,0.65); --text-3:rgba(247,242,234,0.42);
+  --amber:#E8A020; --amber-2:#F5C842; --green:#00D4A0; --red:#EF4444;
+  --f-head:'Playfair Display',Georgia,serif;
+  --f-body:'DM Sans',system-ui,sans-serif;
+  --f-mono:'DM Mono',ui-monospace,monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--f-body);min-height:100vh;padding:3rem 2rem;display:flex;align-items:flex-start;justify-content:center}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 80% 15%,rgba(232,160,32,0.13),transparent 60%);pointer-events:none;z-index:0}
+.wrap{position:relative;z-index:1;max-width:780px;width:100%}
+.eyebrow{font-family:var(--f-mono);font-size:.85rem;letter-spacing:.22em;color:var(--amber);text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:10px}
+.eyebrow::before{content:'';width:8px;height:8px;border-radius:999px;background:var(--amber);box-shadow:0 0 0 4px rgba(232,160,32,.18)}
+h1{font-family:var(--f-head);font-weight:900;font-size:clamp(2rem,4vw,3.5rem);line-height:1.05;letter-spacing:-.025em;margin-bottom:1rem}
+h1 em{font-style:italic;color:var(--amber)}
+.lede{font-size:1.05rem;color:var(--text-2);line-height:1.6;margin-bottom:2.5rem;max-width:600px}
+.card{background:rgba(26,20,16,.7);border:1px solid var(--border);border-radius:14px;padding:1.5rem;margin-bottom:1.5rem;backdrop-filter:blur(8px)}
+.field{margin-bottom:1.25rem}
+.field:last-child{margin-bottom:0}
+.label{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.18em;color:var(--text-3);text-transform:uppercase;margin-bottom:.5rem;display:block}
+.input{width:100%;padding:12px 14px;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:var(--f-body);font-size:14px;outline:none}
+.input:focus{border-color:rgba(232,160,32,.5)}
+.btn-amber{display:inline-flex;align-items:center;gap:10px;padding:14px 28px;background:var(--amber);color:#1A0F00;font-family:var(--f-body);font-weight:700;font-size:14px;border:none;border-radius:10px;cursor:pointer;letter-spacing:.04em;box-shadow:0 6px 18px -8px rgba(232,160,32,.6)}
+.btn-amber:hover{background:var(--amber-2)}
+.btn-amber:disabled{opacity:.5;cursor:not-allowed}
+.help{font-size:12px;color:var(--text-3);margin-top:.5rem;line-height:1.5}
+.help a{color:var(--amber);text-decoration:underline}
+.progress{margin-top:2rem}
+.progress-bar{width:100%;height:8px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden;margin-bottom:1rem}
+.progress-fill{height:100%;background:var(--amber);width:0%;transition:width .25s ease;border-radius:999px}
+.progress-log{max-height:280px;overflow-y:auto;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:9px;padding:1rem;font-family:var(--f-mono);font-size:12px;line-height:1.6}
+.log-row{display:flex;gap:10px;padding:3px 0;color:var(--text-2)}
+.log-row.done{color:var(--green)}
+.log-row.fail{color:var(--red)}
+.log-row.running{color:var(--amber)}
+.log-time{color:var(--text-3);font-size:11px;min-width:60px}
+.success{display:none;margin-top:1.5rem;padding:1.5rem;background:rgba(0,212,160,.06);border:1px solid rgba(0,212,160,.3);border-radius:12px}
+.success.show{display:block}
+.success-title{font-family:var(--f-head);font-weight:700;font-size:1.5rem;color:var(--green);margin-bottom:.5rem}
+.success-body{color:var(--text-2);font-size:14px;line-height:1.6}
+.success-body code{background:rgba(0,0,0,.4);padding:2px 8px;border-radius:5px;font-family:var(--f-mono);font-size:12px;color:var(--amber)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">One-time setup</div>
+  <h1>Generate the <em>tutorial</em> audio.</h1>
+  <p class="lede">Calls ElevenLabs 14 times, once per scene, packs the MP3s into a single zip. Extract it into this folder and the tutorial plays with perfect sync.</p>
+
+  <div class="card">
+    <div class="field">
+      <label class="label" for="elKey">ElevenLabs API key</label>
+      <input class="input" type="password" id="elKey" placeholder="sk_...">
+      <div class="help">Get one at <a href="https://elevenlabs.io" target="_blank" rel="noopener">elevenlabs.io</a> &rarr; Profile &rarr; API Key. Stays in this browser, never sent anywhere except ElevenLabs.</div>
+    </div>
+    <div class="field">
+      <label class="label" for="voiceId">Voice ID</label>
+      <input class="input" type="text" id="voiceId" value="kmiDQH3kczbRzoifN5Qv">
+      <div class="help">Default is the brand voice. Find your own at ElevenLabs &rarr; VoiceLab &rarr; click voice &rarr; copy ID.</div>
+    </div>
+    <div class="field">
+      <label class="label" for="stability">Voice stability</label>
+      <input class="input" type="number" id="stability" min="0" max="1" step="0.05" value="0.5">
+      <div class="help">0.30 = expressive, 0.50 = balanced, 0.75 = stable. Default 0.45 works for narration.</div>
+    </div>
+    <button class="btn-amber" id="genBtn" onclick="generateAll()">Generate 14 MP3s &rarr;</button>
+  </div>
+
+  <div class="card progress" id="progressCard" style="display:none">
+    <div class="label">Progress</div>
+    <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
+    <div class="progress-log" id="progLog"></div>
+  </div>
+
+  <div class="success" id="successCard">
+    <div class="success-title">Done.</div>
+    <div class="success-body">
+      Your browser downloaded <code>tutorial_audio.zip</code>. Extract it (right-click &rarr; Extract All) into this folder so you have <code>cue_00.mp3</code> through <code>cue_13.mp3</code> sitting next to <code>VoiceVideo_Tutorial.html</code>. Then open the tutorial &mdash; perfect sync.
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script>
+// ── 14 narration cues — must match VoiceVideo_Tutorial.html ──
+var CUES = [
+  "Welcome to VoiceVideo. Let me take you on a quick tour. In three minutes, you'll see every feature.",
+  "Here's what this app does. You start with a topic. The app writes the document, verifies it with a five-layer A I audit, voices it, renders the video, and publishes it. Six steps, one tab, ninety seconds. Let me walk you through each one.",
+  "Step one. Pick what kind of content you want to create. There are six formats: essay, report, lesson, voiceover script, debate, or story. Each gives Claude a different structure to work with.",
+  "Step two. Type your topic. One sentence is enough. You can also paste a source U R L and Claude will read that page first. Or toggle web grounding to pull live web search results into the prompt.",
+  "Step three. Three quick selectors. Pick a tone, a length, and an audience. Then hit generate.",
+  "Step four. Claude writes your document in about fifteen seconds. You can read it, edit it, copy it, or download it as a Word doc, P D F, PowerPoint, or markdown.",
+  "Step five. Not quite right? Use the enhance chat below the document. Ask Claude to rewrite sections, change the tone, add statistics, or shorten paragraphs. The document updates in place.",
+  "Step six. The verification panel. Claude scores your document on five layers: accuracy, bias and balance, completeness, hallucination, and quality. Each layer gets a donut gauge. The overall trust score sits at the top of the panel.",
+  "Step seven. Want extra confidence? Toggle on cross-checking with a second provider like G P T-4, Gemini, or Mistral. Two independent A Is have to agree before you hit publish. Disagreements are flagged for human review.",
+  "Step eight. Generate the voice with ElevenLabs Turbo V two. Pick a voice, paste your key, and the document gets narrated in seconds.",
+  "Step nine. Render the video. Pick your quality, click create, and the browser turns your slides and voice into an M P 4 with a branded intro and outro. Nothing uploads to a server. Your content stays with you.",
+  "Step ten. Publish in one click. Upload straight to YouTube via OAuth. Sync to a Notion database. Commit to a GitHub repo. Or just download the file.",
+  "Step eleven. Keep an eye on cost. The built-in observability dashboard logs every A P I call, shows your token usage, and flags expensive prompts. Export the metrics as JSON for Grafana.",
+  "And that's it. Three generations are free on us. After that, paste your own Claude and ElevenLabs keys. Your usage, your bill, your data. Go to voicevideo.io and try it now."
+];
+
+function log(msg, cls) {
+  var row = document.createElement('div');
+  row.className = 'log-row' + (cls ? ' ' + cls : '');
+  var t = new Date().toLocaleTimeString('en-GB');
+  row.innerHTML = '<span class="log-time">' + t + '</span><span>' + msg + '</span>';
+  var logEl = document.getElementById('progLog');
+  logEl.appendChild(row);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function setProgress(pct) {
+  document.getElementById('progFill').style.width = pct + '%';
+}
+
+async function generateAll() {
+  var key = document.getElementById('elKey').value.trim();
+  var voiceId = document.getElementById('voiceId').value.trim() || 'kmiDQH3kczbRzoifN5Qv';
+  var stability = parseFloat(document.getElementById('stability').value) || 0.5;
+  if (!key) { alert('Paste your ElevenLabs API key first.'); return; }
+
+  document.getElementById('genBtn').disabled = true;
+  document.getElementById('genBtn').textContent = 'Generating...';
+  document.getElementById('progressCard').style.display = 'block';
+  document.getElementById('progLog').innerHTML = '';
+  document.getElementById('successCard').classList.remove('show');
+  log('Starting generation of ' + CUES.length + ' clips...', 'running');
+
+  var zip = new JSZip();
+  var failed = [];
+
+  for (var i = 0; i < CUES.length; i++) {
+    var idx = i;
+    var num = (idx < 10 ? '0' + idx : '' + idx);
+    var filename = 'cue_' + num + '.mp3';
+    log('[' + (idx + 1) + '/' + CUES.length + '] ' + filename + ' — calling ElevenLabs...', 'running');
+    try {
+      var resp = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + encodeURIComponent(voiceId), {
+        method: 'POST',
+        headers: { 'Accept': 'audio/mpeg', 'xi-api-key': key, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: CUES[idx],
+          model_id: 'eleven_multilingual_v2',
+          voice_settings: { stability: stability, similarity_boost: 0.75, style: 0.3, use_speaker_boost: true },
+          output_format: 'mp3_44100_192'
+        })
+      });
+      if (!resp.ok) {
+        var err = await resp.text();
+        throw new Error('ElevenLabs ' + resp.status + ': ' + err.substring(0, 120));
+      }
+      var blob = await resp.blob();
+      zip.file(filename, blob);
+      var kb = (blob.size / 1024).toFixed(0);
+      log('[' + (idx + 1) + '/' + CUES.length + '] ' + filename + ' — ' + kb + ' KB ✓', 'done');
+      setProgress(Math.round(((idx + 1) / CUES.length) * 100));
+      // Be friendly to the API — 600ms pause between calls
+      await new Promise(function(r){ setTimeout(r, 600); });
+    } catch (e) {
+      log('[' + (idx + 1) + '/' + CUES.length + '] ' + filename + ' FAILED: ' + e.message, 'fail');
+      failed.push(idx);
+    }
+  }
+
+  if (failed.length === 0) {
+    log('All clips generated. Packing zip...', 'running');
+    var zipBlob = await zip.generateAsync({ type: 'blob' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(zipBlob);
+    a.download = 'tutorial_audio.zip';
+    a.click();
+    log('Downloaded tutorial_audio.zip', 'done');
+    document.getElementById('successCard').classList.add('show');
+  } else {
+    log(failed.length + ' clip(s) failed. Fix the issues above and click Generate again.', 'fail');
+  }
+
+  document.getElementById('genBtn').disabled = false;
+  document.getElementById('genBtn').textContent = 'Generate 14 MP3s →';
+}
+</script>
+</body>
+</html>
