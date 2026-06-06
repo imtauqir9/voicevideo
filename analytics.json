@@ -12,18 +12,20 @@
     "2026-06-06": {
       "page_view": 1,
       "page_view:page=app": 1,
-      "generation_started": 1,
-      "generation_started:type=report": 1,
-      "generation_started:length=medium": 1,
-      "generation_started:tone=engagingandaccessible": 1,
-      "generation_completed": 3,
-      "generation_completed:type=report": 3,
-      "generation_completed:length=medium": 3,
+      "generation_started": 2,
+      "generation_started:type=report": 2,
+      "generation_started:length=medium": 2,
+      "generation_started:tone=engagingandaccessible": 2,
+      "generation_completed": 5,
+      "generation_completed:type=report": 5,
+      "generation_completed:length=medium": 5,
       "document_downloaded": 1,
       "document_downloaded:format=pptx": 1,
       "voice_generated": 1,
-      "voice_generated:provider=demo": 1
+      "voice_generated:provider=demo": 1,
+      "own_key_used": 1,
+      "own_key_used:provider=claude": 1
     }
   },
-  "updatedAt": "2026-06-06T04:28:00.108Z"
+  "updatedAt": "2026-06-06T14:29:52.018Z"
 }
