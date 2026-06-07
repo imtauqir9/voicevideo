@@ -25,7 +25,13 @@
       "voice_generated:provider=demo": 1,
       "own_key_used": 1,
       "own_key_used:provider=claude": 1
+    },
+    "2026-06-07": {
+      "generation_started": 1,
+      "generation_started:type=essay": 1,
+      "generation_started:length=comprehensive": 1,
+      "generation_started:tone=professionalandauthoritative": 1
     }
   },
-  "updatedAt": "2026-06-06T14:29:52.018Z"
+  "updatedAt": "2026-06-07T06:46:42.552Z"
 }
